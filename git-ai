@@ -1,0 +1,96 @@
+#!/usr/bin/env bash
+
+[ -z "${DEBUG:-}" ] || set -x
+
+set -euo pipefail
+
+_git_ai_source_dir=$(dirname "${BASH_SOURCE[0]}")
+
+# Verify required dependencies are installed
+#
+# Checks that Bash 4.4+, git, claude, and gum are available.
+# Prints installation instructions and exits if any are missing.
+_check_dependencies() {
+	if [[ "${BASH_VERSINFO[0]}" -lt 4 || ("${BASH_VERSINFO[0]}" -eq 4 && "${BASH_VERSINFO[1]}" -lt 4) ]]; then
+		echo "git-ai: requires Bash 4.4+ (found ${BASH_VERSION})" >&2
+		echo "  macOS: brew install bash" >&2
+		exit 1
+	fi
+
+	local missing=()
+
+	if ! command -v git &>/dev/null; then
+		missing+=("git     — https://git-scm.com")
+	fi
+	if ! command -v claude &>/dev/null; then
+		missing+=("claude  — https://docs.anthropic.com/en/docs/claude-code")
+	fi
+	if ! command -v gum &>/dev/null; then
+		missing+=("gum     — https://github.com/charmbracelet/gum")
+	fi
+	if [[ ${#missing[@]} -gt 0 ]]; then
+		echo "git-ai: missing required dependencies:" >&2
+		for dep in "${missing[@]}"; do
+			echo "  $dep" >&2
+		done
+		exit 1
+	fi
+}
+
+_check_dependencies
+
+# Source command modules
+source "$_git_ai_source_dir/scripts/git_cmd.sh"
+source "$_git_ai_source_dir/scripts/git_commit.sh"
+
+# Help function
+#
+# Displays comprehensive help information for all commands
+# including usage examples and available options.
+_show_help() {
+	cat <<'EOF'
+git ai - AI-powered git commands
+
+USAGE:
+    git ai <command> [options]
+
+COMMANDS:
+    commit      Generate a commit message for staged changes
+
+SEE ALSO:
+    git ai commit --help    # Commit command help
+EOF
+}
+
+# Version function
+#
+# Reads and displays the current version from version.txt.
+_show_version() {
+	cat "$_git_ai_source_dir/version.txt"
+}
+
+# Main entry point
+main() {
+	local command="${1:-}"
+	shift || true
+
+	case $command in
+	commit)
+		_git_commit "$@"
+		;;
+	--version | -V)
+		_show_version
+		;;
+	--help | -h | help | "")
+		_show_help
+		;;
+	*)
+		gum log --level error "Unknown command '$command'"
+		gum log --level info "Available commands: commit"
+		gum log --level info "Run 'git ai --help' for usage information"
+		exit 1
+		;;
+	esac
+}
+
+main "$@"
