@@ -20,7 +20,7 @@
       {
         packages.default = pkgs.stdenv.mkDerivation {
           pname = "git-ai";
-          version = builtins.readFile ./version.txt;
+          version = pkgs.lib.removeSuffix "\n" (builtins.readFile ./version.txt);
           src = ./.;
           installPhase = ''
             mkdir -p $out/bin
