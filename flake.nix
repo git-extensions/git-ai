@@ -19,6 +19,17 @@
 
       in
       {
+        packages.default = pkgs.stdenv.mkDerivation {
+          pname = "git-ai";
+          version = builtins.readFile ./version.txt;
+          src = ./.;
+          installPhase = ''
+            mkdir -p $out/bin
+            cp -r * $out/bin/
+            chmod +x $out/bin/git-ai
+          '';
+        };
+
         devShells.default = pkgs.mkShell {
           packages = with pkgs; [
             bash
