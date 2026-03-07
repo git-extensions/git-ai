@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.4.0](https://github.com/git-extensions/git-ai/compare/v0.3.0...v0.4.0) (2026-03-07)
+
+
+### Features
+
+* use share/ layout and makeWrapper with gum as runtime dep ([548faf7](https://github.com/git-extensions/git-ai/commit/548faf728384f8259a0367c99d3b01c5895c46d9))
+
+
+### Bug Fixes
+
+* handle first commit in empty repo gracefully ([50a823d](https://github.com/git-extensions/git-ai/commit/50a823d910e034a8d37427424fd96617cb0d0d70))
+* strip trailing newline from version.txt in flake ([f5cc8ad](https://github.com/git-extensions/git-ai/commit/f5cc8adf31b7dcb15b52635897653c2199688bf0))
+
 ## [0.3.0](https://github.com/git-extensions/git-ai/compare/v0.2.0...v0.3.0) (2026-03-07)
 
 
