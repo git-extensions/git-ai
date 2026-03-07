@@ -3,9 +3,6 @@
 AI-powered git commands. Generate commit messages from staged changes — all
 from your terminal.
 
-![License](https://img.shields.io/github/license/git-extensions/git-ai)
-![Version](https://img.shields.io/github/v/release/git-extensions/git-ai)
-
 ## Prerequisites
 
 - [Gum](https://github.com/charmbracelet/gum) — macOS: `brew install gum`
@@ -14,6 +11,22 @@ from your terminal.
 - [Claude Code](https://docs.anthropic.com/en/docs/build-with-claude/claude-code) (`claude`)
 
 ## Installation
+
+### Nix (recommended)
+
+Run directly without installing:
+
+```bash
+nix run github:git-extensions/git-ai -- commit
+```
+
+Or install into your profile:
+
+```bash
+nix profile install github:git-extensions/git-ai
+```
+
+### Manual
 
 Symlink the `git-ai` script onto your `$PATH` so git discovers it as a custom
 command:
