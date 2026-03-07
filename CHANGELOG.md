@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.0](https://github.com/git-extensions/git-ai/compare/v0.2.0...v0.3.0) (2026-03-07)
+
+
+### Features
+
+* add packages.default derivation ([0e8b9f9](https://github.com/git-extensions/git-ai/commit/0e8b9f9eafab9473dbc61e401163b80dfb4a2b80))
+
 ## [0.2.0](https://github.com/git-extensions/git-ai/compare/v0.1.0...v0.2.0) (2026-02-28)
 
 
