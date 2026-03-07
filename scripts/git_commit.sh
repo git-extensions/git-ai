@@ -120,11 +120,12 @@ _git_commit() {
 	local git_diff_staged_stat
 	git_diff_staged_stat=$(git diff --staged --stat)
 
-	local git_branch
-	git_branch=$(git rev-parse --abbrev-ref HEAD)
-
-	local git_log_oneline
-	git_log_oneline=$(git log --oneline -5 2>/dev/null | sed 's/^[a-f0-9]* /- /')
+	local git_branch=""
+	local git_log_oneline=""
+	if git rev-parse HEAD &>/dev/null; then
+		git_branch=$(git rev-parse --abbrev-ref HEAD)
+		git_log_oneline=$(git log --oneline -5 2>/dev/null | sed 's/^[a-f0-9]* /- /')
+	fi
 
 	local agent_model
 	agent_model=$(git config ai.commit.model 2>/dev/null || true)
