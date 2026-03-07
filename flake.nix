@@ -28,11 +28,21 @@
 
           installPhase = ''
             mkdir -p $out/share/git-ai $out/bin
-            cp -r * $out/share/git-ai/
+            cp git-ai $out/share/git-ai/
+            cp -r scripts templates $out/share/git-ai/
             chmod +x $out/share/git-ai/git-ai
             makeWrapper $out/share/git-ai/git-ai $out/bin/git-ai \
               --prefix PATH : ${pkgs.lib.makeBinPath runtimeDeps}
           '';
+
+          meta = with pkgs.lib; {
+            description = "AI-powered git commit message generator using Claude";
+            homepage = "https://github.com/git-extensions/git-ai";
+            license = licenses.mit;
+            maintainers = [ ];
+            mainProgram = "git-ai";
+            platforms = platforms.unix;
+          };
         };
 
         devShells.default = pkgs.mkShell {
