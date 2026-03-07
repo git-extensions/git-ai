@@ -40,7 +40,7 @@ EOF
 #
 # Example: _parse_commit_args desc -d "context"
 _parse_commit_args() {
-	local -n gh_commit_description_ref="$1"
+	local -n git_commit_description_ref="$1"
 	shift
 
 	local raw_args=("$@")
@@ -56,16 +56,16 @@ _parse_commit_args() {
 
 		case "${raw_args[$i]}" in
 		--description | -d)
-			if (( i + 1 >= ${#raw_args[@]} )); then
+			if ((i + 1 >= ${#raw_args[@]})); then
 				gum log --level error "${raw_args[$i]} requires a value"
 				return 1
 			fi
-			gh_commit_description_ref="${raw_args[$((i + 1))]}"
+			git_commit_description_ref="${raw_args[$((i + 1))]}"
 			skip_next=true
 			;;
 		--description=*)
 			# shellcheck disable=SC2034 # nameref: set by caller
-			gh_commit_description_ref="${raw_args[$i]#--description=}"
+			git_commit_description_ref="${raw_args[$i]#--description=}"
 			;;
 		-*)
 			gum log --level error "unknown flag '${raw_args[$i]}' (use -- to pass flags to git commit)"
@@ -103,8 +103,8 @@ _git_commit() {
 	# shellcheck disable=SC2154
 	template_file="$_git_ai_source_dir/templates/git_commit.tmpl"
 
-	local gh_commit_description=""
-	_parse_commit_args gh_commit_description "${ai_args[@]}"
+	local git_commit_description=""
+	_parse_commit_args git_commit_description "${ai_args[@]}"
 
 	# Gather git context
 	local git_diff_staged
@@ -130,9 +130,9 @@ _git_commit() {
 	agent_model=$(git config ai.commit.model 2>/dev/null || true)
 
 	# Format description as context block if provided
-	local gh_commit_description_context=""
-	if [[ -n "$gh_commit_description" ]]; then
-		gh_commit_description_context="<description>$gh_commit_description</description>"
+	local git_commit_description_context=""
+	if [[ -n "$git_commit_description" ]]; then
+		git_commit_description_context="<description>$git_commit_description</description>"
 	fi
 
 	local git_commit_message
@@ -140,7 +140,11 @@ _git_commit() {
 	git_commit_message=$(
 		gum spin --title "Generating Git commit message..." -- \
 			"$_git_ai_source_dir/scripts/git_cmd.sh" ask "$agent_model" < <(
-				GIT_DIFF_STAGED="$git_diff_staged" GIT_DIFF_STAGED_STAT="$git_diff_staged_stat" GIT_BRANCH="$git_branch" GIT_COMMITS="$git_log_oneline" GH_COMMIT_DESCRIPTION="$gh_commit_description_context" \
+				GIT_DIFF_STAGED="$git_diff_staged" \
+					GIT_DIFF_STAGED_STAT="$git_diff_staged_stat" \
+					GIT_BRANCH="$git_branch" \
+					GIT_COMMITS="$git_log_oneline" \
+					GIT_COMMIT_DESCRIPTION="$git_commit_description_context" \
 					"$_git_ai_source_dir/scripts/git_cmd.sh" render "$template_file"
 			)
 	)

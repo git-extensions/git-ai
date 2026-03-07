@@ -1,5 +1,8 @@
-Write a conventional commit message for the staged changes below.
+<task>
+Generate a conventional commit message from the staged changes.
+</task>
 
+<context>
 <diffstat>
 ${GIT_DIFF_STAGED_STAT}
 </diffstat>
@@ -8,29 +11,89 @@ ${GIT_DIFF_STAGED_STAT}
 ${GIT_DIFF_STAGED}
 </diff>
 
-<context>
-Branch: ${GIT_BRANCH}
+<branch>
+${GIT_BRANCH}
+</branch>
+
 <recent_commits>
 ${GIT_COMMITS}
 </recent_commits>
 </context>
 
-${GH_COMMIT_DESCRIPTION}
+${GIT_COMMIT_DESCRIPTION}
 
-<format>
-- Subject: `<type>[optional scope]: <description>` under 72 chars
-- For material changes, add a blank line then a body paragraph
-- Output only the commit message, no quotes or code blocks
-</format>
+<instructions>
+Write a conventional commit message for the currently staged changes only.
 
-<types>
-feat, fix, docs, style, refactor, perf, test, build, ci, chore
-</types>
+Use the staged diff as the primary source of truth. Use diffstat, branch name,
+recent commits, and any additional description only as supporting context.
 
-<style>
-- Imperative mood: "add feature" not "added feature"
-- Lowercase subject; no trailing period
-- Wrap body lines at 80 characters
-- Match recent commit style from context
-- Describe the change, not the intent or benefit
-</style>
+Determine the dominant change in the staged diff and describe that change only.
+If the diff includes tightly related edits, summarize them as one coherent
+change. If the diff mixes unrelated concerns, summarize only the primary concern.
+
+Match recent commit style when it is clear and consistent, but do not copy facts
+from recent commits that are not visible in the staged diff.
+
+Use scope only when it clearly improves precision. Omit it when uncertain.
+</instructions>
+
+<rules>
+- Do not speculate beyond the visible staged diff.
+- Prefer concrete verbs and specific nouns over vague wording.
+- Avoid generic subjects like "update code", "fix issues", or "improve logic".
+- Do not mention filenames unless necessary for clarity.
+- Do not let generated files, formatting-only edits, or incidental docs changes
+  dominate the summary unless they are the main staged change.
+- If tests accompany a production change, classify by the production change.
+- If docs accompany a code change, classify by the code change.
+- If the body is present, it must add concrete detail, not repeat the subject.
+- If the staged changes are too small, trivial, noisy, or ambiguous, output only
+  a concise subject line and do not invent a body.
+
+Conventional commit types (use exactly one):
+- feat: adds or exposes new functionality
+- fix: corrects broken or incorrect behavior
+- docs: documentation-only changes
+- style: formatting, whitespace, lint-only, or non-semantic style changes
+- refactor: restructuring without intended behavior change
+- perf: performance improvement visible in the staged changes
+- test: adds, updates, or reorganizes tests without production behavior changes
+- build: dependencies, packaging, build scripts, or build metadata changes
+- ci: workflow, pipeline, or automation configuration changes
+- chore: maintenance work not better classified above
+</rules>
+
+<output_format>
+Return only the raw commit message.
+Do not wrap the output in code fences, quotes, or any other formatting.
+
+Subject format:
+`<type>[optional scope]: <description>`
+
+Subject requirements:
+- under 72 characters
+- imperative mood
+- lowercase
+- no trailing period
+- describe what changed, not why
+
+Body requirements:
+- include only for material changes clearly supported by the staged diff
+- use one short paragraph
+- wrap at 80 characters
+- no bullet points
+- no markdown
+- no quotes
+- no code fences
+
+<example>
+chore: remove unused logger dependency
+</example>
+
+<example>
+fix(auth): add token refresh retry
+
+retry token refresh once before returning an authentication error.
+</example>
+</output_format>
