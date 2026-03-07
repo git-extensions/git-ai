@@ -68,7 +68,7 @@ Override the AI provider and model via `git config`.
 
 | Key               | Default     | Description                 |
 | ----------------- | ----------- | --------------------------- |
-| `ai.provider`     | `anthropic` | AI provider (`anthropic`)   |
+| `ai.agent`        | `claude`    | AI agent (`claude`)         |
 | `ai.model`        | `haiku`     | Model for all commands      |
 | `ai.commit.model` |             | Model override for `commit` |
 

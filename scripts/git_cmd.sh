@@ -45,9 +45,9 @@ _cmd_render() {
 #
 # Usage: echo "prompt" | _cmd_ask [MODEL]
 _cmd_ask() {
-	local agent_provider
-	agent_provider=$(git config ai.provider 2>/dev/null || true)
-	agent_provider="${agent_provider:-anthropic}"
+	local agent
+	agent=$(git config ai.agent 2>/dev/null || true)
+	agent="${agent:-claude}"
 
 	local agent_model="${1:-}"
 	if [[ -z "$agent_model" ]]; then
@@ -55,8 +55,8 @@ _cmd_ask() {
 		agent_model="${agent_model:-haiku}"
 	fi
 
-	case "$agent_provider" in
-	anthropic)
+	case "$agent" in
+	claude)
 		MAX_THINKING_TOKENS=0 claude -p \
 			--model="$agent_model" \
 			--disable-slash-commands \
@@ -66,7 +66,7 @@ _cmd_ask() {
 			- || true
 		;;
 	*)
-		gum log --level error "Unsupported provider '$agent_provider' (supported: anthropic)"
+		gum log --level error "Unsupported agent '$agent' (supported: claude)"
 		return 1
 		;;
 	esac
