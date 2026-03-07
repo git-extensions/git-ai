@@ -82,6 +82,10 @@ git config --global ai.model haiku
 git config --global ai.commit.model sonnet
 ```
 
+## See Also
+
+- [git-fzf](https://github.com/git-extensions/git-fzf) — Fuzzy finder for git worktrees
+
 ## License
 
 [MIT](LICENSE) — Copyright (c) 2025 git-extensions
