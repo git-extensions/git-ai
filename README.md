@@ -1,7 +1,12 @@
 # git-ai
 
-AI-powered git commands. Generate commit messages from staged changes — all
-from your terminal.
+Stop writing commit messages by hand. `git-ai` generates precise, conventional
+commit messages from your staged changes — powered by Claude, right in your
+terminal.
+
+```bash
+git add -p && git ai commit
+```
 
 ## Prerequisites
 
