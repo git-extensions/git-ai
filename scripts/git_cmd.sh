@@ -99,10 +99,10 @@ _split_on_separator() {
 }
 
 main() {
-	local command
-	command="${1:-}"
+	local cmd
+	cmd="${1:-}"
 
-	case "$command" in
+	case "$cmd" in
 	render)
 		_cmd_render "${2:-}"
 		;;
