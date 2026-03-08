@@ -15,7 +15,6 @@ git ai chat main
 - [Bash](https://www.gnu.org/software/bash/) 4.4+ — `brew install bash` (macOS ships 3.x)
 - [Claude Code](https://docs.anthropic.com/en/docs/build-with-claude/claude-code)
 - [Gum](https://github.com/charmbracelet/gum) — `brew install gum`
-- [jq](https://jqlang.github.io/jq/) — `brew install jq` (required for `git ai chat`)
 
 ## Installation
 
@@ -77,9 +76,8 @@ git ai explain -d "focus on auth"     # with extra context
 
 ### Chat
 
-Opens a persistent interactive AI session scoped to a diff. Sessions are stored
-under `.git/sessions/chat/<scope>/` and resume automatically on subsequent
-invocations with the same refs. Pass `-n`/`--new-session` to start fresh.
+Opens an interactive AI session with the diff loaded as context. Each
+invocation starts a fresh session.
 
 ```bash
 git ai chat                           # chat about staged changes
@@ -88,7 +86,6 @@ git ai chat main                      # chat about branch divergence from main
 git ai chat pr-122-branch             # chat about a specific branch
 git ai chat HEAD~3..HEAD              # explicit range
 git ai chat -d "any security issues?" # with a specific focus
-git ai chat -n                        # force a new session
 git ai chat -- --model sonnet         # pass flags to the agent
 ```
 

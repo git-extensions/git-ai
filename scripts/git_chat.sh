@@ -13,12 +13,11 @@ _show_chat_help() {
 git ai chat - Open an interactive AI session with git diff context
 
 USAGE:
-    git ai chat [REF1 [REF2]] [--staged] [-d <DESCRIPTION>] [-n] [-- AGENT_OPTIONS]
+    git ai chat [REF1 [REF2]] [--staged] [-d <DESCRIPTION>] [-- AGENT_OPTIONS]
 
 DESCRIPTION:
-    Starts or resumes an interactive AI session scoped to a git diff.
-    Sessions are persisted under .git/sessions/chat/<slug>/ and resume
-    automatically on subsequent invocations with the same refs.
+    Starts an interactive AI session with the diff as a system prompt context.
+    Each invocation starts a fresh session.
 
     No args / --staged  → git diff --staged (default)
     Single ref          → git diff <ref>...HEAD
@@ -27,18 +26,15 @@ DESCRIPTION:
 
 FLAGS:
     -d, --description <TEXT>    Extra context or focus for the session
-    -n, --new-session           Force a new session instead of resuming
     -- AGENT_OPTIONS            Options passed directly to the agent binary
 
 EXAMPLES:
     git ai chat                             # chat about staged changes
-    git ai chat --staged                    # same as above
     git ai chat HEAD~3                      # chat about changes since HEAD~3
     git ai chat main                        # chat about changes since main
     git ai chat HEAD~3..HEAD                # explicit range
     git ai chat pr-122-branch               # chat about branch divergence
     git ai chat -d "any security issues?"   # with extra focus
-    git ai chat -n                          # force new session
     git ai chat -- --model sonnet           # pass model to agent
 EOF
 }
@@ -46,17 +42,15 @@ EOF
 # Parse chat arguments (before -- separator)
 #
 # Extracts up to two optional ref positional args, --staged flag,
-# -d/--description value, and -n/--new-session flag.
-# Unknown flags produce an error.
+# and -d/--description value. Unknown flags produce an error.
 #
-# Usage: _parse_chat_args_git ref1_ref ref2_ref staged_ref desc_ref new_session_ref [args...]
+# Usage: _parse_chat_args_git ref1_ref ref2_ref staged_ref desc_ref [args...]
 _parse_chat_args_git() {
 	local -n _pcag_ref1="$1"
 	local -n _pcag_ref2="$2"
 	local -n _pcag_staged="$3"
 	local -n _pcag_desc="$4"
-	local -n _pcag_new_session="$5"
-	shift 5
+	shift 4
 
 	local _pcag_raw=("$@")
 	local _pcag_skip=false
@@ -87,10 +81,6 @@ _parse_chat_args_git() {
 			# shellcheck disable=SC2034 # nameref: set by caller
 			_pcag_desc="${_pcag_raw[$_pcag_i]#--description=}"
 			;;
-		--new-session | -n)
-			# shellcheck disable=SC2034 # nameref: set by caller
-			_pcag_new_session=1
-			;;
 		-*)
 			gum log --level error "unknown flag '${_pcag_raw[$_pcag_i]}'"
 			return 1
@@ -110,37 +100,14 @@ _parse_chat_args_git() {
 	done
 }
 
-# Compute a filesystem-safe session slug from diff refs
-#
-# Derives a short identifier used as the session directory name so that
-# each distinct diff scope gets its own resumable chat session.
-#
-# Usage: slug=$(_session_slug ref1 ref2 staged)
-_session_slug() {
-	local ref1="$1" ref2="$2" staged="$3"
-	local slug
-
-	if [[ -n "$ref2" ]]; then
-		slug="$ref1..$ref2"
-	elif [[ -n "$ref1" ]]; then
-		slug="$ref1..HEAD"
-	else
-		slug="staged"
-	fi
-
-	# Sanitize: replace non-alphanumeric/dash/underscore chars with hyphens,
-	# then squeeze consecutive hyphens and strip leading/trailing hyphens.
-	printf '%s' "$slug" | tr -c 'a-zA-Z0-9_-' '-' | tr -s '-' | sed 's/^-//; s/-$//'
-}
-
 # Main chat command implementation
 #
-# Starts or resumes an interactive AI session scoped to a git diff.
-# Builds diff context from the provided refs (or staged changes by default),
-# then calls the configured agent with a rendered system prompt on new sessions
-# or resumes an existing session silently.
+# Starts an interactive AI session scoped to a git diff. Builds diff context
+# from the provided refs (or staged changes by default), renders a system
+# prompt from the template, and launches the configured agent.
+# Each invocation starts a fresh session.
 #
-# Usage: _git_chat [REF1 [REF2]] [--staged] [-d <DESCRIPTION>] [-n] [-- AGENT_OPTIONS]
+# Usage: _git_chat [REF1 [REF2]] [--staged] [-d <DESCRIPTION>] [-- AGENT_OPTIONS]
 _git_chat() {
 	case "${1:-}" in
 	--help | -h | help)
@@ -151,23 +118,22 @@ _git_chat() {
 
 	local args=() passthrough=()
 	_split_on_separator args passthrough "$@"
-	_validate_chat_passthrough passthrough || return 1
 
 	local template_file
 	# shellcheck disable=SC2154
 	template_file="$_git_ai_source_dir/templates/git_chat.tmpl"
 
-	local ref1="" ref2="" staged="" description="" new_session=""
-	_parse_chat_args_git ref1 ref2 staged description new_session "${args[@]}"
+	local ref1="" ref2="" staged="" description=""
+	_parse_chat_args_git ref1 ref2 staged description "${args[@]}"
 
-	local slug
-	slug=$(_session_slug "$ref1" "$ref2" "$staged")
+	local ctx_dir
+	_create_context_dir ctx_dir
 
-	local session_dir
-	_resolve_context_dir "chat" "chat/$slug" session_dir || return 1
+	# shellcheck disable=SC2064
+	trap "rm -rf '$ctx_dir'" EXIT
 
 	local diff_refs="" git_branch=""
-	_prepare_diff_context "$ref1" "$ref2" "$staged" "$session_dir" \
+	_prepare_diff_context "$ref1" "$ref2" "$staged" "$ctx_dir" \
 		diff_refs git_branch || return 1
 
 	local focus=""
@@ -175,19 +141,14 @@ _git_chat() {
 		focus="<focus>$description</focus>"
 	fi
 
-	local is_new_chat="" session_args=()
-	_resolve_chat_session "$session_dir" "$new_session" is_new_chat session_args || return 1
+	local prompt
+	prompt=$(
+		GIT_DIFF_REFS="$diff_refs" \
+			GIT_BRANCH="$git_branch" \
+			GIT_DIFF_FOCUS="$focus" \
+			GIT_AI_SESSION_DIR="$ctx_dir" \
+			"$_git_ai_source_dir/scripts/git_cmd.sh" render "$template_file"
+	)
 
-	local prompt=""
-	if [[ -n "$is_new_chat" ]]; then
-		prompt=$(
-			GIT_DIFF_REFS="$diff_refs" \
-				GIT_BRANCH="$git_branch" \
-				GIT_DIFF_FOCUS="$focus" \
-				GIT_AI_SESSION_DIR="$session_dir" \
-				"$_git_ai_source_dir/scripts/git_cmd.sh" render "$template_file"
-		)
-	fi
-
-	_cmd_chat "$prompt" "${session_args[@]}" "${passthrough[@]}"
+	_cmd_chat "$prompt" "${passthrough[@]}"
 }
