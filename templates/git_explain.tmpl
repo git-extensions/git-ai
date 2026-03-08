@@ -1,0 +1,57 @@
+<task>
+Explain what the following git changes do in clear, plain language.
+</task>
+
+<context>
+<refs>
+${GIT_DIFF_REFS}
+</refs>
+
+<branch>
+${GIT_BRANCH}
+</branch>
+
+<diffstat>
+${GIT_DIFF_STAT}
+</diffstat>
+
+<diff>
+${GIT_DIFF}
+</diff>
+
+<commits>
+${GIT_COMMITS}
+</commits>
+</context>
+
+${GIT_EXPLAIN_DESCRIPTION}
+
+<instructions>
+First review the diff to understand what changed, then group the changes
+logically, and finally assess the intent and impact.
+</instructions>
+
+<rules>
+- Focus on what changed and why, not how.
+- Organize by logical change groups, not by files.
+- If the diff appears incomplete or truncated, state that limitation.
+- If no commits are listed, the changes are unstaged or staged but not committed.
+</rules>
+
+<output_format>
+Format: GitHub-flavored Markdown
+Output only the explanation.
+Do not include preamble or a title.
+Omit sections that are not relevant to the input.
+
+<example>
+## Summary
+{one or two sentence overview}
+
+## What Changed
+{grouped logical changes with brief explanation of each}
+
+## Why
+{inferred intent, if clearly supported by the diff}
+</example>
+</output_format>

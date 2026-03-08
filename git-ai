@@ -42,6 +42,8 @@ _check_dependencies
 # Source command modules
 source "$_git_ai_source_dir/scripts/git_cmd.sh"
 source "$_git_ai_source_dir/scripts/git_commit.sh"
+source "$_git_ai_source_dir/scripts/git_explain.sh"
+source "$_git_ai_source_dir/scripts/git_chat.sh"
 
 # Help function
 #
@@ -56,9 +58,13 @@ USAGE:
 
 COMMANDS:
     commit      Generate a commit message for staged changes
+    explain     Explain git changes in plain language (one-shot)
+    chat        Open an interactive AI session with git diff context
 
 SEE ALSO:
     git ai commit --help    # Commit command help
+    git ai explain --help   # Explain command help
+    git ai chat --help      # Chat command help
 EOF
 }
 
@@ -78,6 +84,12 @@ main() {
 	commit)
 		_git_commit "$@"
 		;;
+	explain)
+		_git_explain "$@"
+		;;
+	chat)
+		_git_chat "$@"
+		;;
 	--version | -V)
 		_show_version
 		;;
@@ -86,7 +98,7 @@ main() {
 		;;
 	*)
 		gum log --level error "Unknown command '$command'"
-		gum log --level info "Available commands: commit"
+		gum log --level info "Available commands: commit, explain, chat"
 		gum log --level info "Run 'git ai --help' for usage information"
 		exit 1
 		;;
