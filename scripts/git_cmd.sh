@@ -6,6 +6,8 @@ set -euo pipefail
 
 # Core utility functions for git-ai
 
+_git_cmd_dir=$(dirname "${BASH_SOURCE[0]}")
+
 # Render a template file by substituting ${VAR} placeholders with env var values
 #
 # Reads the given template file and uses awk to replace ${VAR} tokens with the
@@ -25,17 +27,7 @@ _cmd_render() {
 		return 1
 	fi
 
-	awk '
-	{ content = content $0 "\n" }
-	END {
-		result = ""; remaining = content
-		while (match(remaining, /\$\{[A-Z_][A-Z0-9_]*\}/)) {
-			varname = substr(remaining, RSTART+2, RLENGTH-3)
-			result = result substr(remaining, 1, RSTART-1) ENVIRON[varname]
-			remaining = substr(remaining, RSTART+RLENGTH)
-		}
-		printf "%s%s", result, remaining
-	}' "$template_file"
+	awk -f "$_git_cmd_dir/git_render.awk" "$template_file"
 }
 
 # Send a prompt to the AI provider and print the response
