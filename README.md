@@ -1,11 +1,12 @@
 # git-ai
 
-Stop writing commit messages by hand. `git-ai` generates precise, conventional
-commit messages from your staged changes — powered by Claude, right in your
-terminal.
+AI-powered git commands — generate commit messages, explain changes, and chat
+about diffs right in your terminal, powered by Claude.
 
 ```bash
 git add -p && git ai commit
+git ai explain HEAD~3
+git ai chat main
 ```
 
 ## Prerequisites
@@ -14,6 +15,7 @@ git add -p && git ai commit
 - [Bash](https://www.gnu.org/software/bash/) 4.4+ — `brew install bash` (macOS ships 3.x)
 - [Claude Code](https://docs.anthropic.com/en/docs/build-with-claude/claude-code)
 - [Gum](https://github.com/charmbracelet/gum) — `brew install gum`
+- [jq](https://jqlang.github.io/jq/) — `brew install jq` (required for `git ai chat`)
 
 ## Installation
 
@@ -44,10 +46,6 @@ Then use it as `git ai <command>`.
 
 ## Usage
 
-```bash
-git ai commit [-d <DESCRIPTION>] [-- GIT_COMMIT_OPTIONS]
-```
-
 ### Commit
 
 Generates a conventional commit message from your staged changes. Use
@@ -62,17 +60,50 @@ git ai commit -- --signoff
 git ai commit -- --no-verify
 ```
 
+### Explain
+
+Generates a plain-language explanation of git changes and prints it to stdout.
+With no arguments it explains your staged changes. Pass a ref to explain what
+diverged from that point, or pass two refs for an explicit range.
+
+```bash
+git ai explain                        # staged changes (default)
+git ai explain HEAD~3                 # changes since HEAD~3
+git ai explain HEAD~3..HEAD           # explicit range
+git ai explain main                   # changes since main
+git ai explain main feature-branch    # diff between two refs
+git ai explain -d "focus on auth"     # with extra context
+```
+
+### Chat
+
+Opens a persistent interactive AI session scoped to a diff. Sessions are stored
+under `.git/sessions/chat/<scope>/` and resume automatically on subsequent
+invocations with the same refs. Pass `-n`/`--new-session` to start fresh.
+
+```bash
+git ai chat                           # chat about staged changes
+git ai chat HEAD~3                    # chat about changes since HEAD~3
+git ai chat main                      # chat about branch divergence from main
+git ai chat pr-122-branch             # chat about a specific branch
+git ai chat HEAD~3..HEAD              # explicit range
+git ai chat -d "any security issues?" # with a specific focus
+git ai chat -n                        # force a new session
+git ai chat -- --model sonnet         # pass flags to the agent
+```
+
 ## Configuration
 
 Override the AI provider and model via `git config`.
 
-| Key               | Default     | Description                 |
-| ----------------- | ----------- | --------------------------- |
-| `ai.agent`        | `claude`    | AI agent (`claude`)         |
-| `ai.model`        | `haiku`     | Model for all commands      |
-| `ai.commit.model` |             | Model override for `commit` |
+| Key                | Default  | Description                  |
+| ------------------ | -------- | ---------------------------- |
+| `ai.agent`         | `claude` | AI agent binary              |
+| `ai.model`         | `haiku`  | Model for all commands       |
+| `ai.commit.model`  |          | Model override for `commit`  |
+| `ai.explain.model` |          | Model override for `explain` |
 
-Per-command keys take priority over `ai.model`.
+Per-command keys take priority over `ai.model`. For `chat`, pass `-- --model <model>` to override the agent model per session.
 
 ```bash
 # Set the default model
@@ -80,6 +111,9 @@ git config --global ai.model haiku
 
 # Use a stronger model for commits
 git config --global ai.commit.model sonnet
+
+# Use a stronger model for a single chat session
+git ai chat -- --model sonnet
 ```
 
 ## See Also
