@@ -95,8 +95,7 @@ _git_commit() {
 		;;
 	esac
 
-	local ai_args=()
-	local passthrough=()
+	local args=() passthrough=()
 	_split_on_separator ai_args passthrough "$@"
 
 	local template_file
@@ -104,7 +103,7 @@ _git_commit() {
 	template_file="$_git_ai_source_dir/templates/git_commit.tmpl"
 
 	local git_commit_description=""
-	_parse_commit_args git_commit_description "${ai_args[@]}"
+	_parse_commit_args git_commit_description "${args[@]}"
 
 	# Gather git context
 	local git_diff_staged
@@ -120,8 +119,7 @@ _git_commit() {
 	local git_diff_staged_stat
 	git_diff_staged_stat=$(git diff --staged --stat)
 
-	local git_branch=""
-	local git_log_oneline=""
+	local git_branch="" git_log_oneline=""
 	if git rev-parse HEAD &>/dev/null; then
 		git_branch=$(git rev-parse --abbrev-ref HEAD)
 		git_log_oneline=$(git log --oneline -5 2>/dev/null | sed 's/^[a-f0-9]* /- /')
