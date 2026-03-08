@@ -314,8 +314,13 @@ _resolve_chat_session() {
 
 # Build diff context shared by explain and chat commands.
 #
-# Computes a git diff based on the provided refs, saves it to a file in
-# the context directory, and populates five output namerefs.
+# Computes a git diff based on the provided refs, writes three context files
+# to ctx_dir, and populates two output namerefs.
+#
+# Files written to ctx_dir:
+#   diff.patch      — full unified diff
+#   diff_stat.txt   — diffstat summary
+#   commits.txt     — formatted commit log (one per line, "- <msg>")
 #
 # Modes:
 #   ref1 + ref2         → git diff ref1 ref2
@@ -323,20 +328,16 @@ _resolve_chat_session() {
 #   ref1 only           → git diff ref1...HEAD
 #   no refs             → git diff --staged
 #
-# Usage: _prepare_diff_context ref1 ref2 staged ctx_dir \
-#            diff_file_ref diff_stat_ref diff_refs_ref commits_ref branch_ref
+# Usage: _prepare_diff_context ref1 ref2 staged ctx_dir diff_refs_ref branch_ref
 _prepare_diff_context() {
 	local _pdc_ref1="$1"
 	local _pdc_ref2="$2"
 	local _pdc_staged="$3"
 	local _pdc_ctx_dir="$4"
-	local -n _pdc_diff_file="${5}"
-	local -n _pdc_diff_stat="${6}"
-	local -n _pdc_diff_refs="${7}"
-	local -n _pdc_commits="${8}"
-	local -n _pdc_branch="${9}"
+	local -n _pdc_diff_refs="${5}"
+	local -n _pdc_branch="${6}"
 
-	local _pdc_diff _pdc_log
+	local _pdc_diff _pdc_diff_stat _pdc_log
 
 	if [[ -n "$_pdc_ref2" ]]; then
 		# Two separate refs
@@ -373,13 +374,9 @@ _prepare_diff_context() {
 	fi
 
 	_save_context_file "$_pdc_ctx_dir" "diff.patch" "$_pdc_diff"
-	# shellcheck disable=SC2034 # nameref: set by caller
-	_pdc_diff_file="$_pdc_ctx_dir/diff.patch"
-
 	_save_context_file "$_pdc_ctx_dir" "diff_stat.txt" "$_pdc_diff_stat"
-
-	# shellcheck disable=SC2034 # nameref: set by caller
-	_pdc_commits=$(printf '%s\n' "$_pdc_log" | sed 's/^[a-f0-9]* /- /')
+	_save_context_file "$_pdc_ctx_dir" "commits.txt" \
+		"$(printf '%s\n' "$_pdc_log" | sed 's/^[a-f0-9]* /- /')"
 
 	# shellcheck disable=SC2034 # nameref: set by caller
 	_pdc_branch=""

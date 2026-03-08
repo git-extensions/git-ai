@@ -166,9 +166,9 @@ _git_chat() {
 	local session_dir
 	_resolve_context_dir "chat" "chat/$slug" session_dir || return 1
 
-	local diff_file="" diff_stat="" diff_refs="" diff_commits="" git_branch=""
+	local diff_refs="" git_branch=""
 	_prepare_diff_context "$ref1" "$ref2" "$staged" "$session_dir" \
-		diff_file diff_stat diff_refs diff_commits git_branch || return 1
+		diff_refs git_branch || return 1
 
 	local focus=""
 	if [[ -n "$description" ]]; then

@@ -58,7 +58,7 @@ _parse_explain_args() {
 	while [[ $_pea_i -lt ${#_pea_raw[@]} ]]; do
 		if [[ "$_pea_skip" = true ]]; then
 			_pea_skip=false
-			(( ++_pea_i ))
+			((++_pea_i))
 			continue
 		fi
 
@@ -95,7 +95,7 @@ _parse_explain_args() {
 			fi
 			;;
 		esac
-		(( ++_pea_i ))
+		((++_pea_i))
 	done
 }
 
@@ -127,9 +127,9 @@ _git_explain() {
 	# shellcheck disable=SC2064
 	trap "rm -rf '$ctx_dir'" EXIT
 
-	local diff_file="" diff_stat="" diff_refs="" diff_commits="" git_branch=""
+	local diff_refs="" git_branch=""
 	_prepare_diff_context "$ref1" "$ref2" "$staged" "$ctx_dir" \
-		diff_file diff_stat diff_refs diff_commits git_branch || return 1
+		diff_refs git_branch || return 1
 
 	local agent_model
 	agent_model=$(git config ai.explain.model 2>/dev/null || true)
@@ -143,10 +143,10 @@ _git_explain() {
 	explain_output=$(
 		gum spin --title "Generating explanation..." -- \
 			"$_git_ai_source_dir/scripts/git_cmd.sh" ask "$agent_model" < <(
-				GIT_DIFF_FILE="$diff_file" \
-					GIT_DIFF_STAT="$diff_stat" \
+				GIT_DIFF_FILE="$ctx_dir/diff.patch" \
+					GIT_DIFF_STAT_FILE="$ctx_dir/diff_stat.txt" \
+					GIT_COMMITS_FILE="$ctx_dir/commits.txt" \
 					GIT_DIFF_REFS="$diff_refs" \
-					GIT_COMMITS="$diff_commits" \
 					GIT_BRANCH="$git_branch" \
 					GIT_EXPLAIN_DESCRIPTION="$description_context" \
 					"$_git_ai_source_dir/scripts/git_cmd.sh" render "$template_file"
