@@ -37,40 +37,8 @@ The plugin adds `git-ai` to your `$PATH` so git discovers it as a custom command
 
 > **Note:** Bash 4.4+ is still required. On macOS: `brew install bash`.
 
-**zinit**
-
 ```zsh
 zinit light git-extensions/git-ai
-```
-
-**oh-my-zsh**
-
-```zsh
-# Clone into oh-my-zsh custom plugins directory
-git clone https://github.com/git-extensions/git-ai \
-  ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/git-ai
-
-# Add to plugins list in ~/.zshrc
-plugins=(... git-ai)
-```
-
-**antigen**
-
-```zsh
-antigen bundle git-extensions/git-ai
-```
-
-**zplug**
-
-```zsh
-zplug "git-extensions/git-ai"
-```
-
-**Manual**
-
-```zsh
-# In ~/.zshrc
-source /path/to/git-ai/git-ai.plugin.zsh
 ```
 
 ### Manual (symlink)
