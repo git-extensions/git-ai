@@ -36,6 +36,17 @@ _cmd_render() {
 	awk -f "$_git_cmd_dir/git_render.awk" "$template_file"
 }
 
+# Resolve the configured agent binary name
+#
+# Reads ai.agent from git config (default: claude).
+#
+# Usage: _get_agent       # prints binary name to stdout
+_get_agent() {
+	local agent
+	agent=$(git config ai.agent 2>/dev/null || true)
+	printf '%s' "${agent:-claude}"
+}
+
 # Send a prompt to the AI provider and print the response
 #
 # Reads a prompt from stdin and sends it to the configured AI provider.
@@ -44,8 +55,7 @@ _cmd_render() {
 # Usage: echo "prompt" | _cmd_ask [MODEL]
 _cmd_ask() {
 	local agent
-	agent=$(git config ai.agent 2>/dev/null || true)
-	agent="${agent:-claude}"
+	agent=$(_get_agent)
 
 	local agent_model="${1:-}"
 	if [[ -z "$agent_model" ]]; then
