@@ -6,6 +6,12 @@ set -euo pipefail
 
 # Core utility functions for git-ai
 
+# Resolve the directory containing this script
+#
+# Used to locate sibling files (e.g. git_render.awk) relative to git_cmd.sh
+# regardless of the caller's working directory.
+#
+# Usage: _git_cmd_dir     # path to the scripts/ directory
 _git_cmd_dir=$(dirname "${BASH_SOURCE[0]}")
 
 # Render a template file by substituting ${VAR} placeholders with env var values
