@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.5.0](https://github.com/git-extensions/git-ai/compare/v0.4.0...v0.5.0) (2026-03-08)
+
+
+### Features
+
+* add zsh plugin ([3a474b4](https://github.com/git-extensions/git-ai/commit/3a474b44c807842382baa84b21e48f4ebe1351f5))
+* add zsh plugin and update installation docs ([d9e5879](https://github.com/git-extensions/git-ai/commit/d9e5879e7905524c23fbc7d98be004b4ca2e2745))
+
 ## [0.4.0](https://github.com/git-extensions/git-ai/compare/v0.3.0...v0.4.0) (2026-03-07)
 
 
