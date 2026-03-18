@@ -8,12 +8,20 @@ terminal.
 git add -p && git ai commit
 ```
 
-## Prerequisites
+## Requirements
 
-- [Git](https://git-scm.com/) — `brew install git`
-- [Bash](https://www.gnu.org/software/bash/) 4.4+ — `brew install bash` (macOS ships 3.x)
-- [Claude Code](https://docs.anthropic.com/en/docs/build-with-claude/claude-code)
-- [Gum](https://github.com/charmbracelet/gum) — `brew install gum`
+- [Bash](https://www.gnu.org/software/bash/) 4.4+ (`bash`)
+- [Claude Code](https://docs.anthropic.com/en/docs/build-with-claude/claude-code) (`claude`)
+- [Gum](https://github.com/charmbracelet/gum) (`gum`)
+
+**macOS (Homebrew):**
+
+```bash
+brew install bash gum
+```
+
+Install `claude` separately: [Claude Code installation guide](https://docs.anthropic.com/en/docs/claude-code/setup)
+_(nix included with profile install)_
 
 ## Installation
 
