@@ -8,7 +8,7 @@ _git_ai_source_dir=$(dirname "${BASH_SOURCE[0]}")
 
 # Verify required dependencies are installed
 #
-# Checks that Bash 4.4+, git, and claude are available.
+# Checks that Bash 4.4+, git, claude, and gum are available.
 # Prints installation instructions and exits if any are missing.
 _check_dependencies() {
 	if [[ "${BASH_VERSINFO[0]}" -lt 4 || ("${BASH_VERSINFO[0]}" -eq 4 && "${BASH_VERSINFO[1]}" -lt 4) ]]; then
@@ -24,6 +24,9 @@ _check_dependencies() {
 	fi
 	if ! command -v claude &>/dev/null; then
 		missing+=("claude  — https://docs.anthropic.com/en/docs/claude-code")
+	fi
+	if ! command -v gum &>/dev/null; then
+		missing+=("gum     — https://github.com/charmbracelet/gum")
 	fi
 	if [[ ${#missing[@]} -gt 0 ]]; then
 		echo "git-ai: missing required dependencies:" >&2
@@ -82,9 +85,9 @@ main() {
 		_show_help
 		;;
 	*)
-		_gum log --level error "Unknown command '$command'"
-		_gum log --level info "Available commands: commit"
-		_gum log --level info "Run 'git ai --help' for usage information"
+		gum log --level error "Unknown command '$command'"
+		gum log --level info "Available commands: commit"
+		gum log --level info "Run 'git ai --help' for usage information"
 		exit 1
 		;;
 	esac

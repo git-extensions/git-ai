@@ -57,7 +57,7 @@ _parse_commit_args() {
 		case "${raw_args[$i]}" in
 		--description | -d)
 			if ((i + 1 >= ${#raw_args[@]})); then
-				_gum log --level error "${raw_args[$i]} requires a value"
+				gum log --level error "${raw_args[$i]} requires a value"
 				return 1
 			fi
 			git_commit_description_ref="${raw_args[$((i + 1))]}"
@@ -68,11 +68,11 @@ _parse_commit_args() {
 			git_commit_description_ref="${raw_args[$i]#--description=}"
 			;;
 		-*)
-			_gum log --level error "unknown flag '${raw_args[$i]}' (use -- to pass flags to git commit)"
+			gum log --level error "unknown flag '${raw_args[$i]}' (use -- to pass flags to git commit)"
 			return 1
 			;;
 		*)
-			_gum log --level error "unexpected argument '${raw_args[$i]}'"
+			gum log --level error "unexpected argument '${raw_args[$i]}'"
 			return 1
 			;;
 		esac
@@ -111,8 +111,8 @@ _git_commit() {
 
 	# Check if there are staged changes
 	if [[ -z "$git_diff_staged" ]]; then
-		_gum log --level error "No staged changes found"
-		_gum log --level info "Stage your changes with 'git add' first"
+		gum log --level error "No staged changes found"
+		gum log --level info "Stage your changes with 'git add' first"
 		return 1
 	fi
 
@@ -137,7 +137,7 @@ _git_commit() {
 	local git_commit_message
 	# Generate commit message using assistant run
 	git_commit_message=$(
-		_gum spin --title "Generating Git commit message..." -- \
+		gum spin --title "Generating Git commit message..." -- \
 			"$_git_ai_source_dir/scripts/git_cmd.sh" ask "$agent_model" < <(
 				GIT_DIFF_STAGED="$git_diff_staged" \
 					GIT_DIFF_STAGED_STAT="$git_diff_staged_stat" \
@@ -150,8 +150,8 @@ _git_commit() {
 
 	# Validate we got a commit message
 	if [[ -z "$git_commit_message" ]]; then
-		_gum log --level error "Failed to generate commit message"
-		_gum log --level info "Run with DEBUG=1 for detailed diagnostics"
+		gum log --level error "Failed to generate commit message"
+		gum log --level info "Run with DEBUG=1 for detailed diagnostics"
 		return 1
 	fi
 

@@ -6,54 +6,6 @@ set -euo pipefail
 
 # Core utility functions for git-ai
 
-# Check if gum is available (memoized).
-_has_gum() {
-	if [[ -z "${_gum_available+x}" ]]; then
-		if command -v gum &>/dev/null; then
-			_gum_available=1
-		else
-			_gum_available=0
-		fi
-	fi
-	[[ "$_gum_available" -eq 1 ]]
-}
-
-# Gum wrapper — dispatches to gum when available, falls back to plain
-# stderr output otherwise.
-# Usage: _gum log --level info "message"
-#        _gum spin --title "title" -- cmd [args...]
-_gum() {
-	local subcmd="$1"
-	shift
-	case "$subcmd" in
-	log)
-		if _has_gum; then
-			gum log "$@"
-		else
-			local msg="${*: -1}"
-			printf '%s\n' "$msg" >&2
-		fi
-		;;
-	spin)
-		if _has_gum; then
-			gum spin "$@"
-		else
-			local title=""
-			while [[ $# -gt 0 && "$1" != "--" ]]; do
-				if [[ "$1" == "--title" ]]; then shift; title="$1"; fi
-				shift
-			done
-			[[ "$1" == "--" ]] && shift
-			[[ -n "$title" ]] && printf '%s\n' "$title" >&2
-			"$@"
-		fi
-		;;
-	*)
-		return 1
-		;;
-	esac
-}
-
 # Resolve the directory containing this script
 #
 # Used to locate sibling files (e.g. git_render.awk) relative to git_cmd.sh
@@ -77,7 +29,7 @@ _cmd_render() {
 	local template_file="$1"
 
 	if [[ ! -f "$template_file" ]]; then
-		_gum log --level error "Template not found: $template_file"
+		gum log --level error "Template not found: $template_file"
 		return 1
 	fi
 
@@ -122,7 +74,7 @@ _cmd_ask() {
 			- || true
 		;;
 	*)
-		_gum log --level error "Unsupported agent '$agent' (supported: claude)"
+		gum log --level error "Unsupported agent '$agent' (supported: claude)"
 		return 1
 		;;
 	esac
@@ -166,7 +118,7 @@ main() {
 		_cmd_ask "${2:-}"
 		;;
 	*)
-		_gum log --level error "Usage: git_cmd.sh <render|ask> [args]"
+		gum log --level error "Usage: git_cmd.sh <render|ask> [args]"
 		exit 1
 		;;
 	esac
