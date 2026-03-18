@@ -26,7 +26,7 @@ setup() {
 		source "$REPO_ROOT/scripts/git_cmd.sh"
 		# shellcheck source=../scripts/git_commit.sh
 		source "$REPO_ROOT/scripts/git_commit.sh"
-		declare -f _parse_commit_args _show_commit_help _git_commit _split_on_separator
+		declare -f _parse_commit_args _show_commit_help _git_commit _split_on_separator _has_gum _gum
 	)"
 }
 
