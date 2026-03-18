@@ -20,8 +20,13 @@ git add -p && git ai commit
 brew install bash gum
 ```
 
+**Nix:**
+
+```bash
+nix profile install nixpkgs#bash nixpkgs#gum
+```
+
 Install `claude` separately: [Claude Code installation guide](https://docs.anthropic.com/en/docs/claude-code/setup)
-_(nix included with profile install)_
 
 ## Installation
 
