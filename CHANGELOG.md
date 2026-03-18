@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.6.0](https://github.com/git-extensions/git-ai/compare/v0.5.0...v0.6.0) (2026-03-18)
+
+
+### Features
+
+* make gum optional with plain stderr fallback ([00808d0](https://github.com/git-extensions/git-ai/commit/00808d00cd8fde98f02b313cce3289de3489c6ce))
+
 ## [0.5.0](https://github.com/git-extensions/git-ai/compare/v0.4.0...v0.5.0) (2026-03-08)
 
 
