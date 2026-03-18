@@ -12,7 +12,7 @@ git add -p && git ai commit
 
 - [Bash](https://www.gnu.org/software/bash/) 4.4+ (`bash`)
 - [Claude Code](https://docs.anthropic.com/en/docs/build-with-claude/claude-code) (`claude`)
-- [Gum](https://github.com/charmbracelet/gum) (`gum`)
+- [Gum](https://github.com/charmbracelet/gum) (`gum`) _(optional)_
 
 **macOS (Homebrew):**
 
