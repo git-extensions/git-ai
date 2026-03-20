@@ -8,6 +8,8 @@ terminal.
 git add -p && git ai commit
 ```
 
+[![CI](https://github.com/git-extensions/git-ai/actions/workflows/test.yml/badge.svg)](https://github.com/git-extensions/git-ai/actions/workflows/test.yml)
+
 ## Requirements
 
 - [Bash](https://www.gnu.org/software/bash/) 4.4+ (`bash`)
