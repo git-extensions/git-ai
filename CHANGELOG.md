@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.7.0](https://github.com/git-extensions/git-ai/compare/v0.6.0...v0.7.0) (2026-03-20)
+
+
+### Features
+
+* remove mandatory -- separator for git commit passthrough ([30cffdc](https://github.com/git-extensions/git-ai/commit/30cffdc4b57892721db0094903eefd3445a94d69))
+
+
+### Reverts
+
+* restore gum as a required dependency ([2cf29c1](https://github.com/git-extensions/git-ai/commit/2cf29c1b0a74e138d6f0d5287dd6d990f5dd9c66))
+
 ## [0.6.0](https://github.com/git-extensions/git-ai/compare/v0.5.0...v0.6.0) (2026-03-18)
 
 
