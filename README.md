@@ -1,12 +1,10 @@
 # git-ai
 
+> Stop writing commit messages by hand. `git-ai` generates precise, conventional commit messages from your staged changes — powered by Claude, right in your terminal.
+
 [![CI](https://github.com/git-extensions/git-ai/actions/workflows/test.yml/badge.svg)](https://github.com/git-extensions/git-ai/actions/workflows/test.yml)
 [![Release](https://img.shields.io/github/v/release/git-extensions/git-ai)](https://github.com/git-extensions/git-ai/releases/latest)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-
-Stop writing commit messages by hand. `git-ai` generates precise, conventional
-commit messages from your staged changes — powered by Claude, right in your
-terminal.
 
 ```bash
 git add -p && git ai commit
