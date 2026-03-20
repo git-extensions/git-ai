@@ -68,7 +68,7 @@ Then use it as `git ai <command>`.
 ## Usage
 
 ```bash
-git ai commit [-d <DESCRIPTION>] [-- GIT_COMMIT_OPTIONS]
+git ai commit [-d <DESCRIPTION>] [GIT_COMMIT_OPTIONS]
 ```
 
 ### Commit
@@ -81,8 +81,8 @@ the AI when writing the message.
 git add -p
 git ai commit
 git ai commit -d "focus on the security improvements"
-git ai commit -- --signoff
-git ai commit -- --no-verify
+git ai commit --signoff
+git ai commit --no-verify
 ```
 
 ## Configuration

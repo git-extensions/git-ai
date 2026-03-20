@@ -26,41 +26,41 @@ setup() {
 		source "$REPO_ROOT/scripts/git_cmd.sh"
 		# shellcheck source=../scripts/git_commit.sh
 		source "$REPO_ROOT/scripts/git_commit.sh"
-		declare -f _parse_commit_args _show_commit_help _git_commit _split_on_separator
+		declare -f _parse_commit_args _show_commit_help _git_commit
 	)"
 }
 
 @test "_parse_commit_args: sets description from -d flag" {
-	local description=""
-	_parse_commit_args description -d "focus on security"
+	local description="" passthrough=()
+	_parse_commit_args description passthrough -d "focus on security"
 
 	[[ "$description" == "focus on security" ]]
 }
 
 @test "_parse_commit_args: sets description from --description flag" {
-	local description=""
-	_parse_commit_args description --description "improve readability"
+	local description="" passthrough=()
+	_parse_commit_args description passthrough --description "improve readability"
 
 	[[ "$description" == "improve readability" ]]
 }
 
 @test "_parse_commit_args: sets description from --description=value" {
-	local description=""
-	_parse_commit_args description --description="use imperative mood"
+	local description="" passthrough=()
+	_parse_commit_args description passthrough --description="use imperative mood"
 
 	[[ "$description" == "use imperative mood" ]]
 }
 
 @test "_parse_commit_args: accepts empty string for -d" {
-	local description=""
-	_parse_commit_args description -d ""
+	local description="" passthrough=()
+	_parse_commit_args description passthrough -d ""
 
 	[[ -z "$description" ]]
 }
 
 @test "_parse_commit_args: preserves special characters in description" {
-	local description=""
-	_parse_commit_args description -d "fix: handle \$HOME and 'quotes' & <html>"
+	local description="" passthrough=()
+	_parse_commit_args description passthrough -d "fix: handle \$HOME and 'quotes' & <html>"
 
 	[[ "$description" == 'fix: handle $HOME and '"'"'quotes'"'"' & <html>' ]]
 }
@@ -68,44 +68,51 @@ setup() {
 @test "_parse_commit_args: preserves long description verbatim" {
 	local long_desc
 	long_desc="$(printf 'word%.0s ' {1..100})"
-	local description=""
-	_parse_commit_args description -d "$long_desc"
+	local description="" passthrough=()
+	_parse_commit_args description passthrough -d "$long_desc"
 
 	[[ "$description" == "$long_desc" ]]
 }
 
 @test "_parse_commit_args: defaults description to empty when no flags given" {
-	local description=""
-	_parse_commit_args description
+	local description="" passthrough=()
+	_parse_commit_args description passthrough
 
 	[[ -z "$description" ]]
 }
 
 @test "_parse_commit_args: last value wins when -d and --description both given" {
-	local description=""
-	_parse_commit_args description -d "first" --description="second"
+	local description="" passthrough=()
+	_parse_commit_args description passthrough -d "first" --description="second"
 
 	[[ "$description" == "second" ]]
 }
 
 @test "_parse_commit_args: returns error when -d has no value" {
-	local description=""
-	run _parse_commit_args description -d
+	local description="" passthrough=()
+	run _parse_commit_args description passthrough -d
 
 	[[ "$status" -eq 1 ]]
 }
 
 @test "_parse_commit_args: returns error when --description has no value" {
-	local description=""
-	run _parse_commit_args description --description
+	local description="" passthrough=()
+	run _parse_commit_args description passthrough --description
 
 	[[ "$status" -eq 1 ]]
 }
 
-@test "_parse_commit_args: returns error with hint for unknown flags" {
-	local description=""
-	run _parse_commit_args description --signoff
+@test "_parse_commit_args: collects unknown flag as passthrough" {
+	local description="" passthrough=()
+	_parse_commit_args description passthrough --signoff
 
-	[[ "$status" -eq 1 ]]
-	[[ "$output" == *"use -- to pass flags to git commit"* ]]
+	[[ "${passthrough[*]}" == "--signoff" ]]
+}
+
+@test "_parse_commit_args: collects remaining args on first unknown flag" {
+	local description="" passthrough=()
+	_parse_commit_args description passthrough -d "msg" --signoff --no-verify
+
+	[[ "$description" == "msg" ]]
+	[[ "${passthrough[*]}" == "--signoff --no-verify" ]]
 }

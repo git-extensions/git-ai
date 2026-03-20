@@ -80,32 +80,6 @@ _cmd_ask() {
 	esac
 }
 
-# Split arguments on the first `--` separator
-#
-# Populates two nameref arrays: everything before `--` goes into the first,
-# everything after goes into the second.  A second `--` in the tail section
-# is kept verbatim (passed through).
-#
-# Usage: _split_on_separator before_ref after_ref "$@"
-_split_on_separator() {
-	local -n _before_ref="$1"
-	local -n _after_ref="$2"
-	shift 2
-
-	_before_ref=()
-	_after_ref=()
-
-	while [[ $# -gt 0 ]]; do
-		if [[ "$1" == "--" ]]; then
-			shift
-			_after_ref=("$@")
-			return 0
-		fi
-		_before_ref+=("$1")
-		shift
-	done
-}
-
 main() {
 	local cmd
 	cmd="${1:-}"

@@ -13,11 +13,11 @@ _show_commit_help() {
 git ai commit - Create commits with AI-generated messages
 
 USAGE:
-    git ai commit [-d <DESCRIPTION>] [-- GIT_COMMIT_OPTIONS]
+    git ai commit [-d <DESCRIPTION>] [GIT_COMMIT_OPTIONS]
 
 DESCRIPTION:
     Generates a conventional commit message from staged changes using AI,
-    then creates the commit. Options after -- are passed to git commit.
+    then creates the commit. Unknown options are passed through to git commit.
 
 FLAGS:
     -d, --description <TEXT>    Additional context for AI commit message generation
@@ -25,23 +25,24 @@ FLAGS:
 EXAMPLES:
     git ai commit                                        # Generate message and commit
     git ai commit -d "focus on security improvements"   # With additional context
-    git ai commit -- --signoff                           # Commit with sign-off
-    git ai commit -- --no-verify                         # Skip pre-commit hooks
+    git ai commit --signoff                              # Commit with sign-off
+    git ai commit --no-verify                            # Skip pre-commit hooks
 
 SEE ALSO:
     git commit --help    # Full list of git commit options
 EOF
 }
 
-# Parse commit arguments (before -- separator)
+# Parse commit arguments
 #
-# Extracts the optional -d/--description value. Unknown flags produce
-# an error with a hint to use -- for git commit options.
+# Extracts the optional -d/--description value. On the first unknown flag,
+# collects it and all remaining args into passthrough_ref.
 #
-# Example: _parse_commit_args desc -d "context"
+# Usage: _parse_commit_args desc_ref passthrough_ref [args...]
 _parse_commit_args() {
 	local -n git_commit_description_ref="$1"
-	shift
+	local -n git_commit_passthrough_ref="$2"
+	shift 2
 
 	local raw_args=("$@")
 	local skip_next=false
@@ -68,8 +69,9 @@ _parse_commit_args() {
 			git_commit_description_ref="${raw_args[$i]#--description=}"
 			;;
 		-*)
-			gum log --level error "unknown flag '${raw_args[$i]}' (use -- to pass flags to git commit)"
-			return 1
+			# shellcheck disable=SC2034
+			git_commit_passthrough_ref=("${raw_args[@]:$i}")
+			return 0
 			;;
 		*)
 			gum log --level error "unexpected argument '${raw_args[$i]}'"
@@ -95,15 +97,12 @@ _git_commit() {
 		;;
 	esac
 
-	local args=() passthrough=()
-	_split_on_separator ai_args passthrough "$@"
-
 	local template_file
 	# shellcheck disable=SC2154
 	template_file="$_git_ai_source_dir/templates/git_commit.tmpl"
 
-	local git_commit_description=""
-	_parse_commit_args git_commit_description "${args[@]}"
+	local git_commit_description="" passthrough=()
+	_parse_commit_args git_commit_description passthrough "$@"
 
 	# Gather git context
 	local git_diff_staged
