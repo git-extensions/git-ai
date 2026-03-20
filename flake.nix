@@ -46,6 +46,7 @@
         };
 
         devShells.default = pkgs.mkShell {
+          name = "git-ai";
           packages = with pkgs; [
             bash
             gum
