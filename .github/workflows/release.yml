@@ -9,7 +9,7 @@ jobs:
   release-please:
     runs-on: ubuntu-latest
     steps:
-      - uses: googleapis/release-please-action@4.4.0
+      - uses: googleapis/release-please-action@v4
         with:
           config-file: .github/config/release-please-config.json
           manifest-file: .github/config/release-please-manifest.json
