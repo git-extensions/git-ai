@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.1](https://github.com/git-extensions/git-ai/compare/v0.7.0...v0.7.1) (2026-04-16)
+
+
+### Bug Fixes
+
+* add postCreateCommand to restore nix volume permissions ([acf78aa](https://github.com/git-extensions/git-ai/commit/acf78aab669537b7b94b1aad90480d79088dca86))
+
 ## [0.7.0](https://github.com/git-extensions/git-ai/compare/v0.6.0...v0.7.0) (2026-03-20)
 
 
