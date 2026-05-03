@@ -4,22 +4,22 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
     flake-utils.url = "github:numtide/flake-utils";
-    llm-agents.url = "github:numtide/llm-agents.nix";
   };
 
   outputs =
     {
       nixpkgs,
       flake-utils,
-      llm-agents,
       ...
     }:
     flake-utils.lib.eachDefaultSystem (
       system:
       let
         pkgs = nixpkgs.legacyPackages.${system};
-        agents = llm-agents.packages.${system};
-        runtimeDeps = with pkgs; [ gum jq ];
+        runtimeDeps = with pkgs; [
+          gum
+          jq
+        ];
       in
       {
         packages.default = pkgs.stdenv.mkDerivation {
@@ -56,9 +56,6 @@
             jq
             bats
             shellcheck
-            agents.claude-code
-            agents.codex
-            agents.gemini-cli
           ];
 
           shellHook = ''
