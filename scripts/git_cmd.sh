@@ -19,6 +19,8 @@ _git_cmd_dir=$(dirname "${BASH_SOURCE[0]}")
 source "$_git_cmd_dir/git_cmd_claude.sh"
 # shellcheck source=scripts/git_cmd_codex.sh
 source "$_git_cmd_dir/git_cmd_codex.sh"
+# shellcheck source=scripts/git_cmd_gemini.sh
+source "$_git_cmd_dir/git_cmd_gemini.sh"
 
 # Render a template file by substituting ${VAR} placeholders with env var values
 #
@@ -64,8 +66,11 @@ _get_agent_default_model() {
 	codex)
 		_get_codex_default_model
 		;;
+	gemini)
+		_get_gemini_default_model
+		;;
 	*)
-		gum log --level error "Unsupported agent '$1' (supported: claude, codex)"
+		gum log --level error "Unsupported agent '$1' (supported: claude, codex, gemini)"
 		return 1
 		;;
 	esac
@@ -108,8 +113,11 @@ _cmd_ask() {
 	codex)
 		_ask_codex "$agent_model"
 		;;
+	gemini)
+		_ask_gemini "$agent_model"
+		;;
 	*)
-		gum log --level error "Unsupported agent '$agent' (supported: claude, codex)"
+		gum log --level error "Unsupported agent '$agent' (supported: claude, codex, gemini)"
 		return 1
 		;;
 	esac

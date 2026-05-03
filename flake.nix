@@ -55,8 +55,8 @@
           ];
 
           shellHook = ''
-            if ! command -v claude &>/dev/null && ! command -v codex &>/dev/null; then
-              echo "warning: no supported AI agent found — install Claude Code or Codex"
+            if ! command -v claude &>/dev/null && ! command -v codex &>/dev/null && ! command -v gemini &>/dev/null; then
+              echo "warning: no supported AI agent found — install Claude Code, Codex, or Gemini CLI"
             fi
           '';
         };

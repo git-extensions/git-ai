@@ -1,6 +1,6 @@
 # git-ai
 
-> Stop writing commit messages by hand. `git-ai` generates precise, conventional commit messages from your staged changes — powered by Claude or Codex, right in your terminal.
+> Stop writing commit messages by hand. `git-ai` generates precise, conventional commit messages from your staged changes — powered by Claude, Codex, or Gemini, right in your terminal.
 
 [![CI](https://github.com/git-extensions/git-ai/actions/workflows/ci.yml/badge.svg)](https://github.com/git-extensions/git-ai/actions/workflows/ci.yml)
 [![Release](https://img.shields.io/github/v/release/git-extensions/git-ai)](https://github.com/git-extensions/git-ai/releases/latest)
@@ -16,6 +16,7 @@ git add -p && git ai commit
 - One supported AI agent:
   - [Claude Code](https://docs.anthropic.com/en/docs/build-with-claude/claude-code) (`claude`)
   - [Codex](https://developers.openai.com/codex/) (`codex`)
+  - [Gemini CLI](https://github.com/google-gemini/gemini-cli) (`gemini`)
 - [Gum](https://github.com/charmbracelet/gum) (`gum`)
 
 **macOS (Homebrew):**
@@ -34,6 +35,7 @@ Install your AI agent separately:
 
 - Claude Code: [Claude Code installation guide](https://docs.anthropic.com/en/docs/claude-code/setup)
 - Codex: [OpenAI Codex](https://developers.openai.com/codex/)
+- Gemini CLI: [google-gemini/gemini-cli](https://github.com/google-gemini/gemini-cli)
 
 ## Installation
 
@@ -98,7 +100,7 @@ Override the AI provider and model via `git config`.
 
 | Key               | Default                     | Description                    |
 | ----------------- | --------------------------- | ------------------------------ |
-| `ai.agent`        | `claude`                    | AI agent (`claude`, `codex`)   |
+| `ai.agent`        | `claude`                    | AI agent (`claude`, `codex`, `gemini`) |
 | `ai.model`        | Agent default               | Model for all commands         |
 | `ai.commit.model` |                             | Model override for `commit`    |
 
@@ -108,6 +110,7 @@ Agent defaults:
 | -------- | ----------------- |
 | `claude` | `haiku`           |
 | `codex`  | `gpt-5.4-mini`    |
+| `gemini` | `gemini-2.5-flash` |
 
 Per-command keys take priority over `ai.model`.
 
@@ -121,6 +124,10 @@ git config --global ai.commit.model sonnet
 # Use Codex
 git config --global ai.agent codex
 git config --global ai.model gpt-5.4-mini
+
+# Use Gemini
+git config --global ai.agent gemini
+git config --global ai.model gemini-2.5-flash
 ```
 
 ## The git-extensions Ecosystem
