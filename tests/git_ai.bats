@@ -58,10 +58,18 @@ setup() {
 @test "_check_dependencies requires jq for gemini agent" {
 	TEST_AGENT="gemini"
 	rm "$COMMANDS_DIR/jq"
-	unset -f jq
+	# Mock command to fail for jq
+	command() {
+		if [[ "$2" == "jq" ]]; then
+			return 1
+		fi
+		builtin command "$@"
+	}
+	export -f command
 
 	run _check_dependencies
 
+	unset -f command
 	[[ "$status" -eq 1 ]]
 	[[ "$output" == *"missing required dependencies"* ]]
 	[[ "$output" == *"jq"* ]]

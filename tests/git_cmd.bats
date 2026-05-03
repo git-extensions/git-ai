@@ -5,6 +5,7 @@
 REPO_ROOT="$(cd "$(dirname "$BATS_TEST_DIRNAME")" && pwd)"
 
 setup() {
+	set -o pipefail
 	export _git_ai_source_dir="$REPO_ROOT"
 	export TEST_AGENT=""
 	export TEST_MODEL=""

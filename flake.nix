@@ -4,18 +4,21 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
     flake-utils.url = "github:numtide/flake-utils";
+    llm-agents.url = "github:numtide/llm-agents.nix";
   };
 
   outputs =
     {
       nixpkgs,
       flake-utils,
+      llm-agents,
       ...
     }:
     flake-utils.lib.eachDefaultSystem (
       system:
       let
         pkgs = nixpkgs.legacyPackages.${system};
+        agents = llm-agents.packages.${system};
         runtimeDeps = with pkgs; [ gum jq ];
       in
       {
@@ -53,11 +56,15 @@
             jq
             bats
             shellcheck
+            agents.claude-code
+            agents.codex
+            agents.gemini-cli
           ];
 
           shellHook = ''
             if ! command -v claude &>/dev/null && ! command -v codex &>/dev/null && ! command -v gemini &>/dev/null; then
-              echo "warning: no supported AI agent found — install Claude Code, Codex, or Gemini CLI"
+              echo "warning: no supported AI agent found — install Claude Code, Codex, or Gemini CLI" >&2
+              echo "  you may need: nix run github:numtide/llm-agents.nix" >&2
             fi
           '';
         };
