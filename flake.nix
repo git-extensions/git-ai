@@ -36,7 +36,7 @@
           '';
 
           meta = with pkgs.lib; {
-            description = "AI-powered git commit message generator using Claude";
+            description = "AI-powered git commit message generator";
             homepage = "https://github.com/git-extensions/git-ai";
             license = licenses.mit;
             maintainers = [ ];
@@ -55,8 +55,8 @@
           ];
 
           shellHook = ''
-            if ! command -v claude &>/dev/null; then
-              echo "warning: 'claude' CLI not found — install via: https://code.claude.com/docs/en/terminal-guide"
+            if ! command -v claude &>/dev/null && ! command -v codex &>/dev/null; then
+              echo "warning: no supported AI agent found — install Claude Code or Codex"
             fi
           '';
         };

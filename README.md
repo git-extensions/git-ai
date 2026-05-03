@@ -1,6 +1,6 @@
 # git-ai
 
-> Stop writing commit messages by hand. `git-ai` generates precise, conventional commit messages from your staged changes — powered by Claude, right in your terminal.
+> Stop writing commit messages by hand. `git-ai` generates precise, conventional commit messages from your staged changes — powered by Claude or Codex, right in your terminal.
 
 [![CI](https://github.com/git-extensions/git-ai/actions/workflows/ci.yml/badge.svg)](https://github.com/git-extensions/git-ai/actions/workflows/ci.yml)
 [![Release](https://img.shields.io/github/v/release/git-extensions/git-ai)](https://github.com/git-extensions/git-ai/releases/latest)
@@ -13,7 +13,9 @@ git add -p && git ai commit
 ## Requirements
 
 - [Bash](https://www.gnu.org/software/bash/) 4.4+ (`bash`)
-- [Claude Code](https://docs.anthropic.com/en/docs/build-with-claude/claude-code) (`claude`)
+- One supported AI agent:
+  - [Claude Code](https://docs.anthropic.com/en/docs/build-with-claude/claude-code) (`claude`)
+  - [Codex](https://developers.openai.com/codex/) (`codex`)
 - [Gum](https://github.com/charmbracelet/gum) (`gum`)
 
 **macOS (Homebrew):**
@@ -28,7 +30,10 @@ brew install bash gum
 nix profile install nixpkgs#bash nixpkgs#gum
 ```
 
-Install `claude` separately: [Claude Code installation guide](https://docs.anthropic.com/en/docs/claude-code/setup)
+Install your AI agent separately:
+
+- Claude Code: [Claude Code installation guide](https://docs.anthropic.com/en/docs/claude-code/setup)
+- Codex: [OpenAI Codex](https://developers.openai.com/codex/)
 
 ## Installation
 
@@ -91,11 +96,18 @@ git ai commit --no-verify
 
 Override the AI provider and model via `git config`.
 
-| Key               | Default     | Description                 |
-| ----------------- | ----------- | --------------------------- |
-| `ai.agent`        | `claude`    | AI agent (`claude`)         |
-| `ai.model`        | `haiku`     | Model for all commands      |
-| `ai.commit.model` |             | Model override for `commit` |
+| Key               | Default                     | Description                    |
+| ----------------- | --------------------------- | ------------------------------ |
+| `ai.agent`        | `claude`                    | AI agent (`claude`, `codex`)   |
+| `ai.model`        | Agent default               | Model for all commands         |
+| `ai.commit.model` |                             | Model override for `commit`    |
+
+Agent defaults:
+
+| Agent    | Default model     |
+| -------- | ----------------- |
+| `claude` | `haiku`           |
+| `codex`  | `gpt-5.4-mini`    |
 
 Per-command keys take priority over `ai.model`.
 
@@ -105,6 +117,10 @@ git config --global ai.model haiku
 
 # Use a stronger model for commits
 git config --global ai.commit.model sonnet
+
+# Use Codex
+git config --global ai.agent codex
+git config --global ai.model gpt-5.4-mini
 ```
 
 ## The git-extensions Ecosystem
