@@ -8,7 +8,7 @@ _git_ai_source_dir=$(dirname "${BASH_SOURCE[0]}")
 
 # Verify required dependencies are installed
 #
-# Checks that Bash 4.4+, git, claude, and gum are available.
+# Checks that Bash 4.4+, git, gum, and the configured AI agent are available.
 # Prints installation instructions and exits if any are missing.
 _check_dependencies() {
 	if [[ "${BASH_VERSINFO[0]}" -lt 4 || ("${BASH_VERSINFO[0]}" -eq 4 && "${BASH_VERSINFO[1]}" -lt 4) ]]; then
@@ -21,9 +21,27 @@ _check_dependencies() {
 
 	if ! command -v git &>/dev/null; then
 		missing+=("git     — https://git-scm.com")
-	fi
-	if ! command -v claude &>/dev/null; then
-		missing+=("claude  — https://docs.anthropic.com/en/docs/claude-code")
+	else
+		local agent
+		agent=$(git config ai.agent 2>/dev/null || true)
+		agent="${agent:-claude}"
+
+		case "$agent" in
+		claude)
+			if ! command -v claude &>/dev/null; then
+				missing+=("claude  — https://docs.anthropic.com/en/docs/claude-code")
+			fi
+			;;
+		codex)
+			if ! command -v codex &>/dev/null; then
+				missing+=("codex   — https://developers.openai.com/codex")
+			fi
+			;;
+		*)
+			echo "git-ai: unsupported agent '$agent' (supported: claude, codex)" >&2
+			exit 1
+			;;
+		esac
 	fi
 	if ! command -v gum &>/dev/null; then
 		missing+=("gum     — https://github.com/charmbracelet/gum")
@@ -36,12 +54,6 @@ _check_dependencies() {
 		exit 1
 	fi
 }
-
-_check_dependencies
-
-# Source command modules
-source "$_git_ai_source_dir/scripts/git_cmd.sh"
-source "$_git_ai_source_dir/scripts/git_commit.sh"
 
 # Help function
 #
@@ -93,4 +105,12 @@ main() {
 	esac
 }
 
-main "$@"
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+	_check_dependencies
+
+	# Source command modules
+	source "$_git_ai_source_dir/scripts/git_cmd.sh"
+	source "$_git_ai_source_dir/scripts/git_commit.sh"
+
+	main "$@"
+fi
