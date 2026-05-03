@@ -26,7 +26,7 @@ setup() {
 		source "$REPO_ROOT/scripts/git_cmd.sh"
 		# shellcheck source=../scripts/git_commit.sh
 		source "$REPO_ROOT/scripts/git_commit.sh"
-		declare -f _parse_commit_args _clean_commit_message _show_commit_help _git_commit
+		declare -f _parse_commit_args _show_commit_help _git_commit
 	)"
 }
 
@@ -115,32 +115,4 @@ setup() {
 
 	[[ "$description" == "msg" ]]
 	[[ "${passthrough[*]}" == "--signoff --no-verify" ]]
-}
-
-@test "_clean_commit_message: keeps clean conventional message unchanged" {
-	local message
-	message=$'feat(gemini): add provider support\n\nadd gemini cli dispatch.'
-
-	run _clean_commit_message "$message"
-
-	[[ "$status" -eq 0 ]]
-	[[ "$output" == "$message" ]]
-}
-
-@test "_clean_commit_message: strips provider metadata before subject" {
-	local message expected
-	message=$'update_topic{summary:<ctrl46>I analyzed the diff,feat(gemini): add support for gemini cli agent\n\nintroduces gemini support.'
-	expected=$'feat(gemini): add support for gemini cli agent\n\nintroduces gemini support.'
-
-	run _clean_commit_message "$message"
-
-	[[ "$status" -eq 0 ]]
-	[[ "$output" == "$expected" ]]
-}
-
-@test "_clean_commit_message: preserves nonconventional output when no subject found" {
-	run _clean_commit_message "plain message"
-
-	[[ "$status" -eq 0 ]]
-	[[ "$output" == "plain message" ]]
 }

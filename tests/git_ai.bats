@@ -22,8 +22,8 @@ setup() {
 	}
 	export -f git
 
-	touch "$COMMANDS_DIR/gum" "$COMMANDS_DIR/claude" "$COMMANDS_DIR/codex" "$COMMANDS_DIR/gemini"
-	chmod +x "$COMMANDS_DIR/gum" "$COMMANDS_DIR/claude" "$COMMANDS_DIR/codex" "$COMMANDS_DIR/gemini"
+	touch "$COMMANDS_DIR/gum" "$COMMANDS_DIR/claude" "$COMMANDS_DIR/codex" "$COMMANDS_DIR/gemini" "$COMMANDS_DIR/jq"
+	chmod +x "$COMMANDS_DIR/gum" "$COMMANDS_DIR/claude" "$COMMANDS_DIR/codex" "$COMMANDS_DIR/gemini" "$COMMANDS_DIR/jq"
 
 	# shellcheck source=../git-ai
 	source "$REPO_ROOT/git-ai"
@@ -53,6 +53,18 @@ setup() {
 	run _check_dependencies
 
 	[[ "$status" -eq 0 ]]
+}
+
+@test "_check_dependencies requires jq for gemini agent" {
+	TEST_AGENT="gemini"
+	rm "$COMMANDS_DIR/jq"
+	unset -f jq
+
+	run _check_dependencies
+
+	[[ "$status" -eq 1 ]]
+	[[ "$output" == *"missing required dependencies"* ]]
+	[[ "$output" == *"jq"* ]]
 }
 
 @test "_check_dependencies reports missing configured codex" {

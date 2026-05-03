@@ -67,10 +67,22 @@ setup() {
 			echo "gemini auth error" >&2
 			return 1
 		fi
-		printf 'gemini message'
+		printf '{"response":"gemini message"}'
 	}
 
-	export -f gum git claude codex gemini
+	jq() {
+		if [[ "$1" == "-r" && "$2" == ".response // empty" ]]; then
+			local json
+			json=$(cat)
+			if [[ "$json" =~ \"response\"[[:space:]]*:[[:space:]]*\"([^\"]*)\" ]]; then
+				printf '%s' "${BASH_REMATCH[1]}"
+			fi
+			return 0
+		fi
+		return 1
+	}
+
+	export -f gum git claude codex gemini jq
 
 	CLAUDE_ARGS_FILE="$BATS_TEST_TMPDIR/claude_args"
 	CODEX_ARGS_FILE="$BATS_TEST_TMPDIR/codex_args"
@@ -86,7 +98,7 @@ setup() {
 		declare -f _get_agent _get_agent_default_model _get_agent_model
 		declare -f _get_claude_default_model _get_codex_default_model
 		declare -f _get_gemini_default_model
-		declare -f _ask_claude _ask_codex _ask_gemini _cmd_ask
+	declare -f _ask_claude _ask_codex _ask_gemini _cmd_ask
 	)"
 }
 
@@ -207,7 +219,7 @@ setup() {
 	[[ "$(cat "$GEMINI_ARGS_FILE")" == *"--prompt prompt"* ]]
 	[[ "$(cat "$GEMINI_ARGS_FILE")" == *"--approval-mode plan"* ]]
 	[[ "$(cat "$GEMINI_ARGS_FILE")" == *"--extensions "* ]]
-	[[ "$(cat "$GEMINI_ARGS_FILE")" == *"--output-format text"* ]]
+	[[ "$(cat "$GEMINI_ARGS_FILE")" == *"--output-format json"* ]]
 	[[ "$(cat "$GEMINI_ARGS_FILE")" == *"--skip-trust"* ]]
 	[[ "$(cat "$GEMINI_ARGS_FILE")" == *"--model gemini-2.5-flash"* ]]
 }
