@@ -16,7 +16,7 @@
       system:
       let
         pkgs = nixpkgs.legacyPackages.${system};
-        runtimeDeps = with pkgs; [ gum ];
+        runtimeDeps = with pkgs; [ gum jq ];
       in
       {
         packages.default = pkgs.stdenv.mkDerivation {
@@ -50,6 +50,7 @@
           packages = with pkgs; [
             bash
             gum
+            jq
             bats
             shellcheck
           ];

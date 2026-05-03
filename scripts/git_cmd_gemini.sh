@@ -27,11 +27,11 @@ _ask_gemini() {
 			--prompt "$prompt" \
 			--approval-mode plan \
 			--extensions '' \
-			--output-format text \
+			--output-format json \
 			--skip-trust \
 			--model "$agent_model" \
 			</dev/null \
-			2>"$error_file"
+			2>"$error_file" | jq -r '.response // empty'
 	); then
 		echo "git-ai: gemini failed to generate a response" >&2
 		cat "$error_file" >&2

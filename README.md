@@ -17,6 +17,7 @@ git add -p && git ai commit
   - [Claude Code](https://docs.anthropic.com/en/docs/build-with-claude/claude-code) (`claude`)
   - [Codex](https://developers.openai.com/codex/) (`codex`)
   - [Gemini CLI](https://github.com/google-gemini/gemini-cli) (`gemini`)
+- `jq` for Gemini output parsing
 - [Gum](https://github.com/charmbracelet/gum) (`gum`)
 
 **macOS (Homebrew):**

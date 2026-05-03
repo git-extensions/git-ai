@@ -41,6 +41,9 @@ _check_dependencies() {
 			if ! command -v gemini &>/dev/null; then
 				missing+=("gemini  — https://github.com/google-gemini/gemini-cli")
 			fi
+			if ! command -v jq &>/dev/null; then
+				missing+=("jq      — https://stedolan.github.io/jq/")
+			fi
 			;;
 		*)
 			echo "git-ai: unsupported agent '$agent' (supported: claude, codex, gemini)" >&2
