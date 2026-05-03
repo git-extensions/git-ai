@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.8.0](https://github.com/git-extensions/git-ai/compare/v0.7.1...v0.8.0) (2026-05-03)
+
+
+### Features
+
+* **gemini:** add support for Gemini CLI agent ([c1cc878](https://github.com/git-extensions/git-ai/commit/c1cc8780c3e8310e42d62e7f085e655cecada915))
+* **gemini:** parse json output with jq ([12bd875](https://github.com/git-extensions/git-ai/commit/12bd875f16e21d45e0cdc1940da3fcb248ede7a8))
+* **nix:** integrate llm-agents.nix flake ([d3aae2d](https://github.com/git-extensions/git-ai/commit/d3aae2d7482c9b421030a5907bee9d8c2dc12060))
+* support codex as an ai agent ([a419dab](https://github.com/git-extensions/git-ai/commit/a419dab3f2585082335de9bc3f20702e4ea3db0d))
+
 ## [0.7.1](https://github.com/git-extensions/git-ai/compare/v0.7.0...v0.7.1) (2026-04-16)
 
 
