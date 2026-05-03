@@ -31,7 +31,7 @@ _ask_gemini() {
 			--skip-trust \
 			--model "$agent_model" \
 			</dev/null \
-			2>"$error_file" | jq -r '.response // empty'
+			2>"$error_file"
 	); then
 		echo "git-ai: gemini failed to generate a response" >&2
 		cat "$error_file" >&2
@@ -39,6 +39,8 @@ _ask_gemini() {
 		return 1
 	fi
 	rm -f "$error_file"
+
+	output=$(printf '%s' "$output" | jq -r '.response // empty')
 
 	if [[ -z "$output" ]]; then
 		echo "git-ai: gemini returned an empty response" >&2
