@@ -9,6 +9,7 @@ setup() {
 	export TEST_AGENT=""
 	export TEST_MODEL=""
 	export TEST_CODEX_FAIL=""
+	export TEST_GEMINI_FAIL=""
 
 	gum() {
 		if [[ "$1" == "log" ]]; then
@@ -60,11 +61,21 @@ setup() {
 		printf 'codex progress'
 	}
 
-	export -f gum git claude codex
+	gemini() {
+		printf '%s' "$*" >"$GEMINI_ARGS_FILE"
+		if [[ -n "$TEST_GEMINI_FAIL" ]]; then
+			echo "gemini auth error" >&2
+			return 1
+		fi
+		printf 'gemini message'
+	}
+
+	export -f gum git claude codex gemini
 
 	CLAUDE_ARGS_FILE="$BATS_TEST_TMPDIR/claude_args"
 	CODEX_ARGS_FILE="$BATS_TEST_TMPDIR/codex_args"
-	export CLAUDE_ARGS_FILE CODEX_ARGS_FILE
+	GEMINI_ARGS_FILE="$BATS_TEST_TMPDIR/gemini_args"
+	export CLAUDE_ARGS_FILE CODEX_ARGS_FILE GEMINI_ARGS_FILE
 
 	# Source git_cmd.sh inside a subshell and import only the function
 	# definitions so its shell options do not leak into bats.
@@ -74,7 +85,8 @@ setup() {
 		source "$REPO_ROOT/scripts/git_cmd.sh"
 		declare -f _get_agent _get_agent_default_model _get_agent_model
 		declare -f _get_claude_default_model _get_codex_default_model
-		declare -f _ask_claude _ask_codex _cmd_ask
+		declare -f _get_gemini_default_model
+		declare -f _ask_claude _ask_codex _ask_gemini _cmd_ask
 	)"
 }
 
@@ -111,6 +123,20 @@ setup() {
 
 	[[ "$status" -eq 0 ]]
 	[[ "$output" == "gpt-5.4-mini" ]]
+}
+
+@test "_get_agent_model defaults to gemini-2.5-flash for gemini" {
+	run _get_agent_model gemini
+
+	[[ "$status" -eq 0 ]]
+	[[ "$output" == "gemini-2.5-flash" ]]
+}
+
+@test "_get_agent_default_model delegates to gemini provider" {
+	run _get_agent_default_model gemini
+
+	[[ "$status" -eq 0 ]]
+	[[ "$output" == "gemini-2.5-flash" ]]
 }
 
 @test "_get_agent_model uses configured global model" {
@@ -171,11 +197,36 @@ setup() {
 	[[ "$output" == *"codex session error"* ]]
 }
 
+@test "_cmd_ask dispatches to gemini with explicit model" {
+	TEST_AGENT="gemini"
+
+	run _cmd_ask gemini-2.5-flash <<<"prompt"
+
+	[[ "$status" -eq 0 ]]
+	[[ "$output" == "gemini message" ]]
+	[[ "$(cat "$GEMINI_ARGS_FILE")" == *"--prompt prompt"* ]]
+	[[ "$(cat "$GEMINI_ARGS_FILE")" == *"--approval-mode plan"* ]]
+	[[ "$(cat "$GEMINI_ARGS_FILE")" == *"--extensions "* ]]
+	[[ "$(cat "$GEMINI_ARGS_FILE")" == *"--output-format text"* ]]
+	[[ "$(cat "$GEMINI_ARGS_FILE")" == *"--skip-trust"* ]]
+	[[ "$(cat "$GEMINI_ARGS_FILE")" == *"--model gemini-2.5-flash"* ]]
+}
+
+@test "_ask_gemini reports provider stderr on failure" {
+	TEST_GEMINI_FAIL=1
+
+	run _ask_gemini gemini-2.5-flash <<<"prompt"
+
+	[[ "$status" -eq 1 ]]
+	[[ "$output" == *"git-ai: gemini failed to generate a response"* ]]
+	[[ "$output" == *"gemini auth error"* ]]
+}
+
 @test "_cmd_ask rejects unsupported agents" {
 	TEST_AGENT="unknown"
 
 	run _cmd_ask <<<"prompt"
 
 	[[ "$status" -eq 1 ]]
-	[[ "$output" == "Unsupported agent 'unknown' (supported: claude, codex)" ]]
+	[[ "$output" == "Unsupported agent 'unknown' (supported: claude, codex, gemini)" ]]
 }

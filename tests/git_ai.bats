@@ -22,8 +22,8 @@ setup() {
 	}
 	export -f git
 
-	touch "$COMMANDS_DIR/gum" "$COMMANDS_DIR/claude" "$COMMANDS_DIR/codex"
-	chmod +x "$COMMANDS_DIR/gum" "$COMMANDS_DIR/claude" "$COMMANDS_DIR/codex"
+	touch "$COMMANDS_DIR/gum" "$COMMANDS_DIR/claude" "$COMMANDS_DIR/codex" "$COMMANDS_DIR/gemini"
+	chmod +x "$COMMANDS_DIR/gum" "$COMMANDS_DIR/claude" "$COMMANDS_DIR/codex" "$COMMANDS_DIR/gemini"
 
 	# shellcheck source=../git-ai
 	source "$REPO_ROOT/git-ai"
@@ -46,6 +46,15 @@ setup() {
 	[[ "$status" -eq 0 ]]
 }
 
+@test "_check_dependencies requires gemini for gemini agent" {
+	TEST_AGENT="gemini"
+	rm "$COMMANDS_DIR/claude" "$COMMANDS_DIR/codex"
+
+	run _check_dependencies
+
+	[[ "$status" -eq 0 ]]
+}
+
 @test "_check_dependencies reports missing configured codex" {
 	TEST_AGENT="codex"
 	rm "$COMMANDS_DIR/codex"
@@ -57,13 +66,24 @@ setup() {
 	[[ "$output" == *"codex"* ]]
 }
 
+@test "_check_dependencies reports missing configured gemini" {
+	TEST_AGENT="gemini"
+	rm "$COMMANDS_DIR/gemini"
+
+	run _check_dependencies
+
+	[[ "$status" -eq 1 ]]
+	[[ "$output" == *"missing required dependencies"* ]]
+	[[ "$output" == *"gemini"* ]]
+}
+
 @test "_check_dependencies rejects unsupported agents" {
 	TEST_AGENT="unknown"
 
 	run _check_dependencies
 
 	[[ "$status" -eq 1 ]]
-	[[ "$output" == "git-ai: unsupported agent 'unknown' (supported: claude, codex)" ]]
+	[[ "$output" == "git-ai: unsupported agent 'unknown' (supported: claude, codex, gemini)" ]]
 }
 
 @test "sourcing git_cmd does not replace git-ai main" {

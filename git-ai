@@ -37,8 +37,13 @@ _check_dependencies() {
 				missing+=("codex   — https://developers.openai.com/codex")
 			fi
 			;;
+		gemini)
+			if ! command -v gemini &>/dev/null; then
+				missing+=("gemini  — https://github.com/google-gemini/gemini-cli")
+			fi
+			;;
 		*)
-			echo "git-ai: unsupported agent '$agent' (supported: claude, codex)" >&2
+			echo "git-ai: unsupported agent '$agent' (supported: claude, codex, gemini)" >&2
 			exit 1
 			;;
 		esac
