@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.8.1](https://github.com/git-extensions/git-ai/compare/v0.8.0...v0.8.1) (2026-05-04)
+
+
+### Bug Fixes
+
+* **github:** correct action versions in update.yml ([b42d2a5](https://github.com/git-extensions/git-ai/commit/b42d2a5cd3b6d6a3e7f496c805b4c555b7d5e8fe))
+
 ## [0.8.0](https://github.com/git-extensions/git-ai/compare/v0.7.1...v0.8.0) (2026-05-03)
 
 
