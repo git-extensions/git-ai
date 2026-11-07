@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.8.2](https://github.com/git-extensions/git-ai/compare/v0.8.1...v0.8.2) (2026-11-07)
+
+
+### Bug Fixes
+
+* **ci:** merge with the App token so main gets its CI run ([#54](https://github.com/git-extensions/git-ai/issues/54)) ([a645ccf](https://github.com/git-extensions/git-ai/commit/a645ccfdb73081e1b9911e0633f65c1119871358))
+
 ## [0.8.1](https://github.com/git-extensions/git-ai/compare/v0.8.0...v0.8.1) (2026-05-04)
 
 
