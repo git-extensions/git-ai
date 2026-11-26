@@ -45,8 +45,13 @@ _check_dependencies() {
 				missing+=("jq      — https://stedolan.github.io/jq/")
 			fi
 			;;
+		pi)
+			if ! command -v pi &>/dev/null; then
+				missing+=("pi      — https://pi.dev")
+			fi
+			;;
 		*)
-			echo "git-ai: unsupported agent '$agent' (supported: claude, codex, gemini)" >&2
+			echo "git-ai: unsupported agent '$agent' (supported: claude, codex, gemini, pi)" >&2
 			exit 1
 			;;
 		esac

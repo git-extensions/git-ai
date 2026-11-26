@@ -11,6 +11,8 @@ setup() {
 	export TEST_MODEL=""
 	export TEST_CODEX_FAIL=""
 	export TEST_GEMINI_FAIL=""
+	export TEST_PI_FAIL=""
+	export TEST_PI_EMPTY=""
 
 	gum() {
 		if [[ "$1" == "log" ]]; then
@@ -71,6 +73,18 @@ setup() {
 		printf '{"response":"gemini message"}'
 	}
 
+	pi() {
+		printf '%s' "$*" >"$PI_ARGS_FILE"
+		cat >"$PI_PROMPT_FILE"
+		if [[ -n "$TEST_PI_FAIL" ]]; then
+			echo "pi auth error" >&2
+			return 1
+		fi
+		if [[ -z "$TEST_PI_EMPTY" ]]; then
+			printf 'pi message'
+		fi
+	}
+
 	jq() {
 		if [[ "$1" == "-r" && "$2" == ".response // empty" ]]; then
 			local json
@@ -83,12 +97,14 @@ setup() {
 		return 1
 	}
 
-	export -f gum git claude codex gemini jq
+	export -f gum git claude codex gemini pi jq
 
 	CLAUDE_ARGS_FILE="$BATS_TEST_TMPDIR/claude_args"
 	CODEX_ARGS_FILE="$BATS_TEST_TMPDIR/codex_args"
 	GEMINI_ARGS_FILE="$BATS_TEST_TMPDIR/gemini_args"
-	export CLAUDE_ARGS_FILE CODEX_ARGS_FILE GEMINI_ARGS_FILE
+	PI_ARGS_FILE="$BATS_TEST_TMPDIR/pi_args"
+	PI_PROMPT_FILE="$BATS_TEST_TMPDIR/pi_prompt"
+	export CLAUDE_ARGS_FILE CODEX_ARGS_FILE GEMINI_ARGS_FILE PI_ARGS_FILE PI_PROMPT_FILE
 
 	# Source git_cmd.sh inside a subshell and import only the function
 	# definitions so its shell options do not leak into bats.
@@ -98,8 +114,8 @@ setup() {
 		source "$REPO_ROOT/scripts/git_cmd.sh"
 		declare -f _get_agent _get_agent_default_model _get_agent_model
 		declare -f _get_claude_default_model _get_codex_default_model
-		declare -f _get_gemini_default_model
-	declare -f _ask_claude _ask_codex _ask_gemini _cmd_ask
+		declare -f _get_gemini_default_model _get_pi_default_model
+		declare -f _ask_claude _ask_codex _ask_gemini _ask_pi _cmd_ask
 	)"
 }
 
@@ -150,6 +166,20 @@ setup() {
 
 	[[ "$status" -eq 0 ]]
 	[[ "$output" == "gemini-2.5-flash" ]]
+}
+
+@test "_get_agent_model leaves Pi model unset to use its default" {
+	run _get_agent_model pi
+
+	[[ "$status" -eq 0 ]]
+	[[ -z "$output" ]]
+}
+
+@test "_get_agent_default_model returns empty for pi" {
+	run _get_agent_default_model pi
+
+	[[ "$status" -eq 0 ]]
+	[[ -z "$output" ]]
 }
 
 @test "_get_agent_model uses configured global model" {
@@ -235,11 +265,59 @@ setup() {
 	[[ "$output" == *"gemini auth error"* ]]
 }
 
+@test "_cmd_ask dispatches to pi without a model override" {
+	TEST_AGENT="pi"
+
+	run _cmd_ask <<<"staged prompt"
+
+	[[ "$status" -eq 0 ]]
+	[[ "$output" == "pi message" ]]
+	[[ "$(cat "$PI_PROMPT_FILE")" == "staged prompt" ]]
+	local args
+	args=$(cat "$PI_ARGS_FILE")
+	[[ "$args" == *"--print"* ]]
+	[[ "$args" == *"--no-session"* ]]
+	[[ "$args" == *"--no-tools"* ]]
+	[[ "$args" == *"--no-extensions"* ]]
+	[[ "$args" == *"--no-mcp"* ]]
+	[[ "$args" == *"--no-context-files"* ]]
+	[[ "$args" != *"--model"* ]]
+}
+
+@test "_cmd_ask passes configured model to pi" {
+	TEST_AGENT="pi"
+	TEST_MODEL="openai/gpt-4o-mini"
+
+	run _cmd_ask <<<"prompt"
+
+	[[ "$status" -eq 0 ]]
+	[[ "$(cat "$PI_ARGS_FILE")" == *"--model openai/gpt-4o-mini"* ]]
+}
+
+@test "_ask_pi reports stderr on failure" {
+	TEST_PI_FAIL=1
+
+	run _ask_pi "" <<<"prompt"
+
+	[[ "$status" -eq 1 ]]
+	[[ "$output" == *"git-ai: pi failed to generate a response"* ]]
+	[[ "$output" == *"pi auth error"* ]]
+}
+
+@test "_ask_pi rejects empty responses" {
+	TEST_PI_EMPTY=1
+
+	run _ask_pi "" <<<"prompt"
+
+	[[ "$status" -eq 1 ]]
+	[[ "$output" == *"git-ai: pi returned an empty response"* ]]
+}
+
 @test "_cmd_ask rejects unsupported agents" {
 	TEST_AGENT="unknown"
 
 	run _cmd_ask <<<"prompt"
 
 	[[ "$status" -eq 1 ]]
-	[[ "$output" == "Unsupported agent 'unknown' (supported: claude, codex, gemini)" ]]
+	[[ "$output" == "Unsupported agent 'unknown' (supported: claude, codex, gemini, pi)" ]]
 }
