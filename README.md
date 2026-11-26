@@ -1,6 +1,6 @@
 # git-ai
 
-> Stop writing commit messages by hand. `git-ai` generates precise, conventional commit messages from your staged changes — powered by Claude, Codex, or Gemini, right in your terminal.
+> Stop writing commit messages by hand. `git-ai` generates precise, conventional commit messages from your staged changes — powered by Claude, Codex, Gemini, or Pi, right in your terminal.
 
 [![CI](https://github.com/git-extensions/git-ai/actions/workflows/ci.yml/badge.svg)](https://github.com/git-extensions/git-ai/actions/workflows/ci.yml)
 [![Release](https://img.shields.io/github/v/release/git-extensions/git-ai)](https://github.com/git-extensions/git-ai/releases/latest)
@@ -17,6 +17,7 @@ git add -p && git ai commit
   - [Claude Code](https://docs.anthropic.com/en/docs/build-with-claude/claude-code) (`claude`)
   - [Codex](https://developers.openai.com/codex/) (`codex`)
   - [Gemini CLI](https://github.com/google-gemini/gemini-cli) (`gemini`)
+  - [Pi](https://pi.dev) (`pi`)
 - `jq` for Gemini output parsing
 - [Gum](https://github.com/charmbracelet/gum) (`gum`)
 
@@ -37,6 +38,7 @@ Install your AI agent separately:
 - Claude Code: [Claude Code installation guide](https://docs.anthropic.com/en/docs/claude-code/setup)
 - Codex: [OpenAI Codex](https://developers.openai.com/codex/)
 - Gemini CLI: [google-gemini/gemini-cli](https://github.com/google-gemini/gemini-cli)
+- Pi: [pi.dev](https://pi.dev) (`curl -fsSL https://pi.dev/install.sh | sh`)
 
 ## Installation
 
@@ -99,19 +101,20 @@ git ai commit --no-verify
 
 Override the AI provider and model via `git config`.
 
-| Key               | Default                     | Description                    |
-| ----------------- | --------------------------- | ------------------------------ |
-| `ai.agent`        | `claude`                    | AI agent (`claude`, `codex`, `gemini`) |
-| `ai.model`        | Agent default               | Model for all commands         |
-| `ai.commit.model` |                             | Model override for `commit`    |
+| Key               | Default       | Description                                  |
+| ----------------- | ------------- | -------------------------------------------- |
+| `ai.agent`        | `claude`      | AI agent (`claude`, `codex`, `gemini`, `pi`) |
+| `ai.model`        | Agent default | Model for all commands                       |
+| `ai.commit.model` |               | Model override for `commit`                  |
 
 Agent defaults:
 
-| Agent    | Default model     |
-| -------- | ----------------- |
-| `claude` | `haiku`           |
-| `codex`  | `gpt-5.4-mini`    |
-| `gemini` | `gemini-2.5-flash` |
+| Agent    | Default model                       |
+| -------- | ----------------------------------- |
+| `claude` | `haiku`                             |
+| `codex`  | `gpt-5.4-mini`                      |
+| `gemini` | `gemini-2.5-flash`                  |
+| `pi`     | Pi's configured model (no override) |
 
 Per-command keys take priority over `ai.model`.
 
@@ -129,6 +132,10 @@ git config --global ai.model gpt-5.4-mini
 # Use Gemini
 git config --global ai.agent gemini
 git config --global ai.model gemini-2.5-flash
+
+# Use Pi with its configured model
+git config --global ai.agent pi
+git config --global --unset ai.model   # optional: let Pi pick its model
 ```
 
 ## The git-extensions Ecosystem

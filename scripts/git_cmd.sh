@@ -21,6 +21,8 @@ source "$_git_cmd_dir/git_cmd_claude.sh"
 source "$_git_cmd_dir/git_cmd_codex.sh"
 # shellcheck source=scripts/git_cmd_gemini.sh
 source "$_git_cmd_dir/git_cmd_gemini.sh"
+# shellcheck source=scripts/git_cmd_pi.sh
+source "$_git_cmd_dir/git_cmd_pi.sh"
 
 # Render a template file by substituting ${VAR} placeholders with env var values
 #
@@ -69,8 +71,11 @@ _get_agent_default_model() {
 	gemini)
 		_get_gemini_default_model
 		;;
+	pi)
+		_get_pi_default_model
+		;;
 	*)
-		gum log --level error "Unsupported agent '$1' (supported: claude, codex, gemini)"
+		gum log --level error "Unsupported agent '$1' (supported: claude, codex, gemini, pi)"
 		return 1
 		;;
 	esac
@@ -116,8 +121,11 @@ _cmd_ask() {
 	gemini)
 		_ask_gemini "$agent_model"
 		;;
+	pi)
+		_ask_pi "$agent_model"
+		;;
 	*)
-		gum log --level error "Unsupported agent '$agent' (supported: claude, codex, gemini)"
+		gum log --level error "Unsupported agent '$agent' (supported: claude, codex, gemini, pi)"
 		return 1
 		;;
 	esac

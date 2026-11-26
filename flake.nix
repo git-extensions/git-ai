@@ -59,8 +59,8 @@
           ];
 
           shellHook = ''
-            if ! command -v claude &>/dev/null && ! command -v codex &>/dev/null && ! command -v gemini &>/dev/null; then
-              echo "warning: no supported AI agent found — install Claude Code, Codex, or Gemini CLI" >&2
+            if ! command -v claude &>/dev/null && ! command -v codex &>/dev/null && ! command -v gemini &>/dev/null && ! command -v pi &>/dev/null; then
+              echo "warning: no supported AI agent found — install Claude Code, Codex, Gemini CLI, or Pi" >&2
               echo "  you may need: nix run github:numtide/llm-agents.nix" >&2
             fi
           '';

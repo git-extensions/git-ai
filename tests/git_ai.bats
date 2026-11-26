@@ -8,7 +8,11 @@ setup() {
 	TEST_AGENT=""
 	COMMANDS_DIR="$BATS_TEST_TMPDIR/bin"
 	mkdir -p "$COMMANDS_DIR"
-	PATH="$COMMANDS_DIR:/usr/bin:/bin"
+	# Restrict PATH so the real agent binaries are not detected, while keeping
+	# coreutils available (NixOS has no /usr/bin).
+	local coreutils_dir
+	coreutils_dir=$(dirname "$(command -v rm)")
+	PATH="$COMMANDS_DIR:$coreutils_dir:/usr/bin:/bin"
 	export TEST_AGENT COMMANDS_DIR PATH
 
 	git() {
@@ -22,8 +26,8 @@ setup() {
 	}
 	export -f git
 
-	touch "$COMMANDS_DIR/gum" "$COMMANDS_DIR/claude" "$COMMANDS_DIR/codex" "$COMMANDS_DIR/gemini" "$COMMANDS_DIR/jq"
-	chmod +x "$COMMANDS_DIR/gum" "$COMMANDS_DIR/claude" "$COMMANDS_DIR/codex" "$COMMANDS_DIR/gemini" "$COMMANDS_DIR/jq"
+	touch "$COMMANDS_DIR/gum" "$COMMANDS_DIR/claude" "$COMMANDS_DIR/codex" "$COMMANDS_DIR/gemini" "$COMMANDS_DIR/pi" "$COMMANDS_DIR/jq"
+	chmod +x "$COMMANDS_DIR/gum" "$COMMANDS_DIR/claude" "$COMMANDS_DIR/codex" "$COMMANDS_DIR/gemini" "$COMMANDS_DIR/pi" "$COMMANDS_DIR/jq"
 
 	# shellcheck source=../git-ai
 	source "$REPO_ROOT/git-ai"
@@ -53,6 +57,26 @@ setup() {
 	run _check_dependencies
 
 	[[ "$status" -eq 0 ]]
+}
+
+@test "_check_dependencies requires pi for pi agent" {
+	TEST_AGENT="pi"
+	rm "$COMMANDS_DIR/claude" "$COMMANDS_DIR/codex" "$COMMANDS_DIR/gemini" "$COMMANDS_DIR/jq"
+
+	run _check_dependencies
+
+	[[ "$status" -eq 0 ]]
+}
+
+@test "_check_dependencies reports missing pi" {
+	TEST_AGENT="pi"
+	rm "$COMMANDS_DIR/pi"
+
+	run _check_dependencies
+
+	[[ "$status" -eq 1 ]]
+	[[ "$output" == *"missing required dependencies"* ]]
+	[[ "$output" == *"pi"* ]]
 }
 
 @test "_check_dependencies requires jq for gemini agent" {
@@ -103,7 +127,7 @@ setup() {
 	run _check_dependencies
 
 	[[ "$status" -eq 1 ]]
-	[[ "$output" == "git-ai: unsupported agent 'unknown' (supported: claude, codex, gemini)" ]]
+	[[ "$output" == "git-ai: unsupported agent 'unknown' (supported: claude, codex, gemini, pi)" ]]
 }
 
 @test "sourcing git_cmd does not replace git-ai main" {
