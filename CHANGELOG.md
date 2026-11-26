@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.9.0](https://github.com/git-extensions/git-ai/compare/v0.8.2...v0.9.0) (2026-11-26)
+
+
+### Features
+
+* **pi:** add support for the Pi agent ([#59](https://github.com/git-extensions/git-ai/issues/59)) ([60bcc9b](https://github.com/git-extensions/git-ai/commit/60bcc9bca6e5ac39bbb4c3d24c0df9e8fd54cd82))
+
 ## [0.8.2](https://github.com/git-extensions/git-ai/compare/v0.8.1...v0.8.2) (2026-11-07)
 
 
